@@ -1,7 +1,6 @@
 # My-Solutions-to-ISLR
 
 This repository contains my solutions attempted for the book "An Introduction to Statistical Learning--with Applications in R", see:
-
 http://www-bcf.usc.edu/~gareth/ISL/
 
 https://lagunita.stanford.edu/courses/HumanitiesandScience/StatLearning/Winter2015/about
