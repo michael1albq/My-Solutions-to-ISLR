@@ -1,0 +1,610 @@
+---
+title: "Chapter 8"
+output:
+  html_document:
+    toc: true
+---
+
+```` {r setup, include = FALSE, cache = FALSE}
+# library(knitr)
+# opts_chunk$set(cache=T)
+options(warn=-1)
+library(RefManageR)
+bib = ReadBib(sprintf("%s/mybib.bib", knitr:::input_dir()), check = "error")
+BibOptions(sorting = "none", style = "markdown", bib.style = "alphabetic")
+```
+
+##Conceptual
+###Excercise 1
+```{r}
+set.seed(1)
+error = 0.7*rnorm(100)
+x1 = rnorm(100, mean = -1.2, sd = 0.7)
+x2 = rnorm(100, mean = 0.5, sd = 1.5)
+beta0 = 1.6; beta1 = 0.8; beta2 = 1.7
+y = beta0 + beta1*x1 + beta2*x2 + error
+plot(x1, y, col = "darkgrey")
+plot(x2, y, col = "darkgrey")
+plot(x1, x2, col = "darkgrey")
+```
+
+```{r fig.width=7, fig.height=6}
+library(tree)
+sim.tree = tree(y~., data = data.frame(x1 = x1, x2 = x2, y = y))
+summary(sim.tree)
+plot(sim.tree)
+text(sim.tree, pretty = 0)
+sim.tree
+plot(x1, x2, col = "darkgoldenrod", pch = 20)
+abline(0.428544, 0, col = "green3", lwd = 2)
+abline(-1.51484, 0, col = "green3", lwd = 2)
+abline(-0.527058, 0, col = "green3", lwd = 2)
+abline(1.58623, 0, col = "green3", lwd = 2)
+text(x = mean(seq(min(x1), max(x1), 0.1)), y = mean(seq(min(x2), -1.51484, 0.1)), label = "R1")
+text(x = mean(seq(min(x1), max(x1), 0.1)), y = mean(seq(-1.51484, -0.527058, 0.1)), label = "R2")
+text(x = mean(seq(min(x1), max(x1), 0.1)), y = mean(seq(-0.527058, 0.428544, 0.1)), label = "R3")
+segments(-0.924831, 0.428544, -0.924831, 1.58623, col = "green3", lwd = 2)
+text(x = mean(seq(min(x1), -0.924831, 0.1)), y = mean(seq(0.428544, 1.58623, 0.1)), label = "R4")
+text(x = mean(seq(-0.924831, max(x1), 0.1)), y = mean(seq(0.428544, 1.58623, 0.1)), label = "R5")
+abline(2.9566, 0, col = "green3", lwd = 2)
+text(x = mean(seq(min(x1), max(x1), 0.1)), y = mean(seq(1.58623, 2.9566, 0.1)), label = "R6")
+text(x = mean(seq(min(x1), max(x1), 0.1)), y = mean(seq(2.9566, max(x2), 0.1)), label = "R7")
+par(xpd=TRUE)
+text(x = max(x1)+0.2, y = -1.51484, label = "-1.51", cex = 0.6)
+text(x = max(x1)+0.2, y = -0.527058, label = "-0.53", cex = 0.6)
+text(x = max(x1)+0.2, y = 0.428544, label = "0.43", cex = 0.6)
+text(x = max(x1)+0.2, y = 1.58623, label = "1.59", cex = 0.6)
+text(x = max(x1)+0.2, y = 2.9566, label = "2.96", cex = 0.6)
+text(x = -0.924831, y = min(x2)-0.5, label = "-0.92", cex = 0.6)
+```
+
+###Excercise 2
+Boosting using stump is essetianlly equivalent to the additive model: for every tree generated, $\hat f ^b(x)$ is fit with $d = 1$ split to the training data $X$, which amounts to single-variable linear model $\hat f_j(x)$. For each of the trees $b = 1,2,...,B$, equivalently, there are $B$ linear models generated. 
+
+Finally, the output of boosting is represented by 
+$$
+\hat f(x) = \sum\limits_{b = 1}^B {\lambda {{\hat f}^b}(x)}
+$$
+, which can be treated as an additive model weighted by $\lambda$, i.e.
+$$
+\hat f(x) = \lambda \sum\limits_{j = 1}^B {{{\hat f}_j}(x)}
+$$
+
+###Excercise 3
+Classification error:
+$$
+E = 1 - \mathop {\max }\limits_k ({\hat p_{mk}})
+$$
+
+Gini index:
+$$
+G = \sum\limits_{k = 1}^K {{{\hat p}_{mk}}(1 - {{\hat p}_{mk}})} 
+$$
+For two-class problem, it becomes
+$$
+G = {{\hat p}_{m1}}(1 - {{\hat p}_{m1}}) + {{\hat p}_{m2}}(1 - {{\hat p}_{m2}})
+$$
+Substituting ${{\hat p}_{m2}} = 1 - {{\hat p}_{m1}}$, therefore, we have:
+$$
+G = 2{{\hat p}_{m1}}(1 - {{\hat p}_{m1}})
+$$
+
+Cross entropy:
+$$
+D =  - \sum\limits_{k = 1}^K {{{\hat p}_{mk}}\log {{\hat p}_{mk}}} 
+$$
+For two-class problem, it becomes
+$$
+D =  - {{\hat p}_{m1}}\log {{\hat p}_{m1}} - {{\hat p}_{m2}}\log {{\hat p}_{m2}}
+$$
+
+```{r fig.width=7, fig.height=6}
+pm1 = seq(0, 1, 0.05)
+pm2 = 1 - pm1
+clf_error = 1 - apply(cbind(pm1, pm2), 1, max)
+g_index = 2*pm1*(1-pm1)
+d_entropy = -pm1*log(pm1)-pm2*log(pm2)
+matplot(pm1, cbind(clf_error, g_index, d_entropy), col = 2:4, type = "l", lty = 1, lwd = 2, xlab=expression(italic(hat(p))[mk]), ylab = "Quantities", xlim = c(0, 1))
+legend("topleft", c("Classification error", "Gini index", "Cross entropy"), col = 2:4, lty = 1)
+```
+
+###Excercise 4a
+![image_4(a)](figures/4(a).jpg)
+
+###Excercise 4b
+![image_4(b)](figures/4(b).jpg)
+
+###Excercise 5
+For majority voting, ${\hat p_{\rm red}} = \frac{6}{10} = 0.6$, while ${\hat p_{\rm green}} = 0.4$, therefore the classification result is _red_.
+
+For approach based on the average probability:
+$$
+{\hat p_{\rm red}} = \frac{0.1+0.15+0.2+0.2+0.55+0.6+0.6+0.65+0.7+0.75}{10} = 0.45
+$$
+, while ${\hat p_{\rm green}} = 1 - {\hat p_{\rm red}} = 0.55$, therefore the classification result is _green_.
+
+###Excercise 6
+The following explanations are taken substantially from ISLR `r Citep(bib, "james2014introduction", .opts = list(cite.style= "authoryear"))`:  
+1. __Grow a large tree__: Take a top-down, greedy approach called recursive binary splitting to split the predictor space where at each step, the best split is made leading to the greatest possible reduction in RSS. Mathmatically, for predictor $X_j$ and cutpoint $s$ such that splitting the predictor space into two regions ${X|X_j < s}$ and ${X|X_j \ge s}$, i.e., for any $j$ and $s$, the pair of half-planes are defined as
+$$
+R_1(j,s) = {X|X_j < s} {~\rm and~} R_2(j,s) ={X|X_j \ge s}
+$$
+therefore, for each split of recursive binary splitting, we are minimizing the equation:
+$$
+{\sum\limits_{i:x{_i} \in {R_1}(j,s)} {({y_i} - {{\hat y}_{{R_1}}})} ^2} + {\sum\limits_{i:x{_i} \in {R_2}(j,s)} {({y_i} - {{\hat y}_{{R_2}}})} ^2}
+$$
+Repeat the process on newly generated regions until a stopping criterion is reached like no region contains more than five observations.  
+2. __Prune the tree__: apply cost complexity pruning (aka weakest link pruning) to the large tree in order to obtain a sequence of best subtrees, as a function of $\lambda$: For each value of $\lambda$ we can find a subtree $T \subset T_0$ such that 
+$$
+\sum\limits_{m = 1}^{\left| T \right|} {\sum\limits_{i:{x_i} \in {R_m}} {({y_i} - {{\hat y}_{{R_m}}}) + \alpha \left| T \right|} } 
+$$
+is as small as possible. $\left| T \right|$ denotes the number of terminal nodes of the tree $T$, $R_m$ is the region corresponds to the terminal node in predictor space, associated with its predicted response ${\hat y}_{R_m}$.  
+3. __Use K-fold Cross-validation to choose $\lambda$__: repeat step (1) and (2) on all but the $k$ th fold of the training data while evaluate the mean squared prediction error on the held-out $k$ th fold as a function of $\lambda$. Afterwards, average the results for each $\lambda$ and pick the best $\lambda$ which minimizes the average error.  
+4. __Return subtree with best $\lambda$__: Generate and return the subtree with step (2), provided the best $\lambda$.
+
+--------------------------------
+
+##Applied
+###Excercise 7
+```{r, cache = TRUE}
+library(MASS)
+library(randomForest)
+attach(Boston)
+set.seed(1)
+train = sample(1:nrow(Boston), nrow(Boston)/2)
+test.X = Boston[-train, ]
+test.Y = medv[-train]
+p = ncol(Boston) - 1
+
+ds = c(p, p / 2, sqrt(p))
+nts = seq(1, 500, 5)
+errors = matrix(NA, length(ds), length(nts))
+for ( d_ind in 1:length(ds) ) {
+  for ( nt_ind in 1:length(nts)) {
+    rf.boston = randomForest(medv~., data = Boston, subset = train, mtry = ds[d_ind], ntree = nts[nt_ind])
+    yhat.rf = predict(rf.boston, data = test.X)
+    errors[d_ind, nt_ind] = mean((yhat.rf - test.Y)^2)
+  }
+}
+matplot(nts, t(errors), col = 2:4, type = "l", lty = 1, lwd = 2, xlab = "Number of Trees", ylab = "Test MSE")
+legend("topright", expression("m = p(bagging)", "m = p/2", "m = "*sqrt(p)), col = 2:4, lty = 1)
+detach(Boston)
+```
+
+The results above indicate that it is more appropriate to use smaller $m$ (number of predictors considered for each split of the tree) for predicting _medv_. After the random forest grows with number of trees larger than 100, the test results become stable.
+
+###Excercise 8a
+```{r}
+library(ISLR)
+attach(Carseats)
+train = sample(1:nrow(Carseats), nrow(Carseats)/2)
+test.X = Carseats[-train, ]
+test.Y = Sales[-train]
+```
+
+###Excercise 8b
+```{r fig.width=11, fig.height=11}
+tree.carseats = tree(Sales~., data = Carseats, subset = train)
+summary(tree.carseats)
+# NOTE: In regression setting, the deviance shown above is simply the sum of squared errors for the tree.
+plot(tree.carseats)
+text(tree.carseats, pretty = 0)
+tree.pred = predict(tree.carseats, test.X)
+mean((tree.pred - test.Y)^2)
+```
+
+###Excercise 8c
+```{r fig.width=10}
+set.seed(1)
+cv.carseats = cv.tree(tree.carseats, FUN = prune.tree)
+par(mfrow = c(1,2))
+plot(cv.carseats$size, cv.carseats$dev, type = "b")
+plot(cv.carseats$k, cv.carseats$dev, type = "b")
+par(mfrow = c(1,1))
+cv.carseats$size[which.min(cv.carseats$dev)]
+```
+
+```{r fig.width=11, fig.height=11}
+prune.carseats = prune.tree(tree.carseats, best = cv.carseats$size[which.min(cv.carseats$dev)])
+plot(prune.carseats)
+text(prune.carseats, pretty = 0)
+tree.pred = predict(prune.carseats, test.X)
+mean((tree.pred - test.Y)^2)
+```
+
+As shown above, pruning the tree __doesn't__ improve the test MSE.
+
+###Excercise 8d
+```{r}
+library(randomForest)
+bag.carseats = randomForest(Sales~., data = Carseats, subset = train, mtry = ncol(Carseats)-1, ntree = 500)
+bag.pred = predict(bag.carseats, test.X)
+mean((bag.pred - test.Y)^2)
+importance(bag.carseats)
+varImpPlot(bag.carseats)
+```
+
+###Excercise 8e
+```{r}
+rf.carseats = randomForest(Sales~., data = Carseats, subset = train, mtry = sqrt(ncol(Carseats)-1), ntree = 500)
+rf.pred = predict(rf.carseats, test.X)
+mean((rf.pred - test.Y)^2)
+```
+
+The test MSE for __bagging__ is lowest among the four models (regression tree, pruned regression tree, bagging and random forest) evaluated so far.
+
+```{r}
+importance(rf.carseats)
+varImpPlot(rf.carseats)
+```
+
+```{r}
+p = ncol(Carseats) - 1 
+errors = c()
+for ( d in seq(1, p) ) {
+  rf.carseats = randomForest(Sales~., data = Carseats, subset = train, mtry = d, ntree = 50)
+  rf.pred = predict(rf.carseats, test.X)
+  errors[d] = mean((rf.pred - test.Y)^2)
+}
+plot(errors, col = "red", type = "b", lwd = 2, xlab = "m", ylab = "Test MSE")
+which.min(errors)
+detach(Carseats)
+```
+
+As shown above, when $m = 8$, the test MSE is lowest (given number of trees $B = 50$, which is sufficiently large in our case for the error rate to have settled down). Besides, the error rate is only slight different after $m = 5$.
+
+###Excercise 9a
+```{r}
+attach(OJ)
+set.seed(1)
+train = sample(1:nrow(OJ), 800)
+test.X = OJ[-train, ]
+test.Y = Purchase[-train]
+```
+
+###Excercise 9b
+```{r}
+tree.oj = tree(Purchase~., data = OJ, subset = train)
+summary(tree.oj)
+```
+
+Four variables--`r summary(tree.oj)$used` have been selected to effectively form the tree.
+
+Within the training set, `r summary(tree.oj)$misclass[1]` out of `r summary(tree.oj)$misclass[2]` examples are misclassified, namely the training error rate is `r sprintf("%.2f", summary(tree.oj)$misclass[1]/summary(tree.oj)$misclass[2]*100)`%. Besides, there are `r summary(tree.oj)$size` number of terminal nodes in the generated tree. 
+
+###Excercise 9c
+```{r}
+tree.oj
+```
+
+Let's pick the first terminal node displayed above: For this terminal node, _LoyalCH < 0.0356415_ indicates the last dimension of region this terminal node represents (i.e. the last split upper to the current terminal node) while _57_ indicates the number of observations in this region. _100.07_ is deviance calculated for current terminal node using equation $- 2\sum\limits_m {\sum\limits_k {{n_{mk}}\log {{\hat p}_{mk}}} }$, where ${{n_{mk}}}$ is the number of observations in the $m$ th terminal node that belong to the $k$ th class and ${{{\hat p}_{mk}}}$ is the corresponding probability that observations in $m$ th region belonging to the $k$ th class. _MM_ is the predicted class $\hat y$ for all observations that reside in this region. Moreover, _(0.01754_, _0.98246)_ indicates the probabilities of $\hat y$ belongs to _CH_ and _MM_ respectively.
+
+###Excercise 9d
+```{r fig.width=11, fig.height=7}
+plot(tree.oj)
+text(tree.oj, pretty = 0)
+```
+
+###Excercise 9e
+```{r}
+tree.pred = predict(tree.oj, test.X, type = "class")
+table(tree.pred, test.Y)
+mean(tree.pred != test.Y)
+```
+
+The test error rate is `r sprintf("%.2f", mean(tree.pred != test.Y)*100)`%.
+
+###Excercise 9f
+```{r}
+set.seed(3)
+cv.oj = cv.tree(tree.oj, FUN = prune.misclass)
+cv.oj
+```
+
+###Excercise 9g
+```{r}
+plot(cv.oj$size, cv.oj$dev, type = "b")
+```
+
+###Excercise 9h
+Tree sizes of `r cv.oj$size[cv.oj$dev == min(cv.oj$dev)]` have the same, lowest cross-validated classification error rate. Hence, we prefer tree size of `r min(cv.oj$size[cv.oj$dev == min(cv.oj$dev)])` that has lower variance.
+
+###Excercise 9i
+```{r fig.width=9, fig.height=7}
+prune.oj = prune.misclass(tree.oj, best = 5)
+plot(prune.oj)
+text(prune.oj, pretty = 0)
+```
+
+###Excercise 9j
+```{r}
+summary(prune.oj)$misclass
+```
+
+Training error rate for unpruned tree is `r sprintf("%.2f", summary(tree.oj)$misclass[1]/summary(tree.oj)$misclass[2]*100)`% while for pruned tree it is also `r sprintf("%.2f", summary(prune.oj)$misclass[1]/summary(prune.oj)$misclass[2]*100)`%. Both are the same.
+
+###Excercise 9k
+```{r}
+tree.pred = predict(prune.oj, test.X, type = "class")
+table(tree.pred, test.Y)
+mean(tree.pred != test.Y)
+detach(OJ)
+```
+
+Test error rate for unpruned tree is 22.59% while for pruned tree it is also 22.59%. Both are the same.
+
+###Excercise 10a
+```{r, cache = TRUE}
+library(gbm)
+Hitters = Hitters[!is.na(Hitters$Salary), ]
+Hitters$LogSalary = log(Hitters$Salary)
+Hitters = subset(Hitters, select = -Salary)
+attach(Hitters)
+```
+
+###Excercise 10b
+```{r, cache = TRUE}
+set.seed(1)
+train = sample(1:nrow(Hitters), 200)
+test.X = Hitters[-train, ]
+test.Y = LogSalary[-train]
+```
+
+###Excercise 10c
+```{r, cache = TRUE}
+grid = 10^seq(-3, 0, length.out = 100)
+train_errors = c(); test_errors = c()
+ind = 1
+for ( lambda in grid ) {
+  boost.hitters = gbm(LogSalary~., data = Hitters[train, ], distribution = "gaussian", n.trees = 1000, shrinkage = lambda, interaction.depth = 1)
+  yhat.boost = predict(boost.hitters, n.trees = 1000)
+  train_errors[ind] = mean((yhat.boost - LogSalary)^2)
+  yhat.boost = predict(boost.hitters, newdata = test.X, n.trees = 1000)
+  test_errors[ind] = mean((yhat.boost - test.Y)^2)
+  ind = ind + 1
+}
+plot(grid, train_errors, type = "l", lwd = 2, col = "blue", xlab = expression(symbol("\154")), ylab = "Training Set MSE")
+```
+
+###Excercise 10d
+```{r, cache = TRUE}
+plot(grid, test_errors, type = "l", lwd = 2, col = "red", xlab = expression(symbol("\154")), ylab = "Test Set MSE")
+title("Test Set MSE of Boosting")
+points(grid[which.min(test_errors)], min(test_errors), col = "green",cex = 2, pch = 20)
+```
+
+Best $\lambda$ is chosen as: `r grid[which.min(test_errors)]`, where the corresponding test set MSE is `r sprintf("%.2f", min(test_errors))`.
+
+###Excercise 10e
+Comparing to the multiple linear regression:
+
+```{r, cache = TRUE}
+lm.fit = lm(LogSalary~., data = Hitters[train,])
+lm.pred = predict(lm.fit, newdata = test.X)
+mean((lm.pred - test.Y)^2)
+```
+
+When chosen with best $\lambda$, boosting greatly outperforms linear regression.
+
+Comparing to best subset method:
+
+```{r, cache = TRUE}
+library(leaps)
+regfit.full = regsubsets(LogSalary~., data = Hitters[train, ], nvmax = ncol(Hitters)-1)
+reg.summary = summary(regfit.full)
+par(mfrow = c(2,2))
+plot(reg.summary$rss, xlab = "Number of Variables", ylab = "RSS", type = "l")
+points(which.min(reg.summary$rss), min(reg.summary$rss), col = "red", cex = 2, pch = 20)
+plot(reg.summary$adjr2, xlab = "Number of variables", ylab = "Adjusted RSq", type = "l")
+points(which.max(reg.summary$adjr2), max(reg.summary$adjr2), col = "red", cex = 2, pch = 20)
+plot(reg.summary$cp, xlab = "Number of variables", ylab = "Mallows' Cp", type = "l")
+points(which.min(reg.summary$cp), min(reg.summary$cp), col = "red", cex = 2, pch = 20)
+plot(reg.summary$bic, xlab = "Number of variables", ylab = "BIC", type = "l")
+points(which.min(reg.summary$bic), min(reg.summary$bic), col = "red", cex = 2, pch = 20)
+```
+
+Choosing the best combination based on Mallows' Cp, then we will have `r which.min(reg.summary$cp)` number of variables to fit the data. They are:
+
+```{r, cache = TRUE}
+coef(regfit.full, which.min(reg.summary$cp))
+```
+
+Refit the training set with the coefficients obtained from best subset method, we have:
+
+```{r, cache = TRUE}
+lm.fit = lm(LogSalary~Runs+Walks+CHits+CWalks+League+Division, data = Hitters[train,])
+lm.pred = predict(lm.fit, newdata = test.X)
+mean((lm.pred - test.Y)^2)
+par(mfrow = c(1,1))
+```
+
+, which is inferior to the boosting (its test set MSE is even higher than the multiple linear regression using full set of features).
+
+__Therefore, we can say that boosting performs much better in this case than linear squares method at the cost of interpretability__.
+
+###Excercise 10f
+```{r, cache = TRUE}
+boost.hitters = gbm(LogSalary~., data = Hitters[train, ], distribution = "gaussian", n.trees = 1000, shrinkage = grid[which.min(test_errors)], interaction.depth = 1)
+summary(boost.hitters)
+```
+
+_CRBI_, _CHits_, _CRuns_, _CRBI_ appear to be the most influential predictor in the boosted model.
+
+###Excercise 10g
+```{r, cache = TRUE}
+bag.hitters = randomForest(LogSalary~., data = Hitters, subset = train, mtry = ncol(Hitters)-1, ntree = 500)
+bag.pred = predict(bag.hitters, test.X)
+mean((bag.pred - test.Y)^2)
+detach(Hitters)
+```
+
+As shown above, the test set MSE of _Bagging_ is lower than the one of _Boosting_.
+
+###Excercise 11a
+```{r}
+attach(Caravan)
+set.seed(1)
+train = sample(1:nrow(Caravan), 1000)
+test.X = Caravan[-train, ]
+test.Y = Purchase[-train]
+```
+
+###Excercise 11b
+```{r}
+library(gbm)
+tmpCaravan = Caravan
+transformedPurchase = rep(0, length(Purchase))
+transformedPurchase[Purchase == "Yes"] = 1
+tmpCaravan = cbind(tmpCaravan, transformedPurchase)
+tmpCaravan = subset(tmpCaravan, select = -Purchase)
+boost.caravan = gbm(transformedPurchase~., data = tmpCaravan[train, ], distribution = "bernoulli", n.trees = 1000, shrinkage = 0.01, interaction.depth = 1)
+summary(boost.caravan)
+```
+
+_PPERSAUT_ appears to be the most important feature.
+
+###Excercise 11c
+Using boosting:
+
+```{r}
+boost.prob = predict(boost.caravan, newdata = tmpCaravan[-train, ], n.trees = 1000, type = "response")
+boost.pred = rep("No", length(boost.prob))
+boost.pred[boost.prob > 0.20] = "Yes"
+table(boost.pred, test.Y)
+mean(boost.pred == test.Y)
+```
+
+, the fraction of people predicted to make a purchase do in fact make one is `r sprintf("%.2f", mean(boost.pred == test.Y)*100)`%.
+
+Using logistic regression:
+
+```{r}
+glm.fit = glm(Purchase~., data = Caravan[train, ], family = binomial)
+glm.probs = predict(glm.fit, newdata = test.X, type = "response")
+glm.pred = rep("No", length(glm.probs))
+glm.pred[glm.probs > 0.20] = "Yes"
+table(glm.pred, test.Y)
+```
+
+, the fraction of people predicted to make a purchase do in fact make one is `r sprintf("%.2f", mean(glm.pred == test.Y)*100)`%.
+
+Using KNN:
+
+```{r}
+library(class) # for KNN function
+train.Y = Purchase[train]
+knn.pred = knn(as.matrix(subset(Caravan, select = -Purchase)[train, ]), as.matrix(subset(Caravan, select = -Purchase)[-train, ]), train.Y, k = 1)
+table(knn.pred, test.Y)
+mean(knn.pred == test.Y)
+```
+
+, the fraction of people predicted to make a purchase do in fact make one is `r sprintf("%.2f", mean(knn.pred == test.Y)*100)`%.
+
+```{r fig.height=4, fig.width=5}
+barplot(c(mean(boost.pred == test.Y)*100, mean(glm.pred == test.Y)*100, mean(knn.pred == test.Y)*100), col = "red", names.arg = c("Boosting", "Logistic Regression", "KNN"), main = "Prediction Accuracy (%)")
+detach(Caravan)
+```
+
+Among three methods, __Boosting__ performs best in predicting whether people will make a purchase.
+
+###Excercise 12
+In this excercise, we will work on the dataset `Auto`.
+
+```{r}
+library(leaps)
+library(gam)
+Auto = subset(Auto, select = -name) # it has been verified that name is not statistically significant for prediction task.
+attach(Auto)
+set.seed(1)
+train = sample(1:nrow(Auto), nrow(Auto)/2)
+test.X = Auto[-train, ]
+test.Y = mpg[-train]
+```
+
+Using boosting:
+
+```{r}
+boost.auto = gbm(mpg~., data = Auto, distribution = "gaussian", n.trees = 2000, shrinkage = 0.001, interaction.depth = 1)
+boost.pred = predict(boost.auto, newdata = test.X, n.trees = 2000)
+mean((boost.pred - test.Y)^2)
+```
+
+, the test set MSE is `r sprintf("%.2f", mean((boost.pred - test.Y)^2))`
+
+Using bagging:
+
+```{r}
+bag.auto = randomForest(mpg~., data = Auto, subset = train, mtry = ncol(Auto)-1, ntree = 500)
+bag.pred = predict(bag.auto, test.X)
+mean((bag.pred - test.Y)^2)
+```
+
+, the test set MSE is `r sprintf("%.2f", mean((bag.pred - test.Y)^2))`.
+
+Using random forest:
+
+```{r}
+rf.auto = randomForest(mpg~., data = Auto, subset = train, mtry = sqrt(ncol(Auto)-1), ntree = 500)
+rf.pred = predict(rf.auto, test.X)
+mean((rf.pred - test.Y)^2)
+```
+
+, the test set MSE is `r sprintf("%.2f", mean((rf.pred - test.Y)^2))`.
+
+Using linear regression with coefficients obtained from best subset method:
+
+```{r}
+regfit.full = regsubsets(mpg~., data = Auto[train, ], nvmax = ncol(Auto)-1)
+reg.summary = summary(regfit.full)
+par(mfrow = c(2,2))
+plot(reg.summary$rss, xlab = "Number of Variables", ylab = "RSS", type = "l")
+points(which.min(reg.summary$rss), min(reg.summary$rss), col = "red", cex = 2, pch = 20)
+plot(reg.summary$adjr2, xlab = "Number of variables", ylab = "Adjusted RSq", type = "l")
+points(which.max(reg.summary$adjr2), max(reg.summary$adjr2), col = "red", cex = 2, pch = 20)
+plot(reg.summary$cp, xlab = "Number of variables", ylab = "Mallows' Cp", type = "l")
+points(which.min(reg.summary$cp), min(reg.summary$cp), col = "red", cex = 2, pch = 20)
+plot(reg.summary$bic, xlab = "Number of variables", ylab = "BIC", type = "l")
+points(which.min(reg.summary$bic), min(reg.summary$bic), col = "red", cex = 2, pch = 20)
+```
+
+By choosing the best combination based on Mallows' Cp,  we will have `r which.min(reg.summary$cp)` number of variables to fit the data. They are:
+
+```{r}
+coef(regfit.full, which.min(reg.summary$cp))
+```
+
+Refit the training set with the coefficients obtained from best subset method, we have:
+
+```{r}
+lm.fit = lm(mpg ~ cylinders + displacement + weight + year + origin , data = Auto[train,])
+lm.pred = predict(lm.fit, newdata = test.X)
+mean((lm.pred - test.Y)^2)
+par(mfrow = c(1,1))
+```
+
+, the test set MSE is `r sprintf("%.2f", mean((lm.pred - test.Y)^2))`.
+
+Using generalized additive method with smoothing splines:
+
+```{r}
+gam.fit = gam(mpg ~ year + origin + cylinders + s(acceleration, 5) + s(displacement, 5) + s(weight, 5) + s(horsepower, 5), data = Auto, subset = train)
+gam.pred = predict(gam.fit, newdata = test.X)
+mean((gam.pred - test.Y)^2)
+```
+
+, the test set MSE is `r sprintf("%.2f", mean((gam.pred - test.Y)^2))`.
+
+Finally, we can compare the results obtained from all five methods:
+
+```{r fig.width=11, fig.height=6}
+barplot(c(mean((boost.pred - test.Y)^2), mean((bag.pred - test.Y)^2), mean((rf.pred - test.Y)^2), mean((lm.pred - test.Y)^2), mean((gam.pred - test.Y)^2)), col = "red", names.arg = c("Boosting", "Bagging", "Random Forest", "Linear Regression", "Generalized Additive Model"), main = "Test Set MSE")
+```
+
+Above plot shows that __random forest__ performs __best__ among all the five methods evaluated.
+
+Explanation: For `Auto` dataset, boosting is inferior to others due to $p$ is very small for which it didn't benefit from its _learning slowly_ nature. GAM (with smoothing splines on predictors _acceleration_, _displacement_, _weight_ and _horsepower_) performs better because it captures the true relationship between the predictors and response (see Excercise 8, Ch7) while the linear regression failed to do so. Approaches like bagging and random forest are superior to GAM due to that they split the predictor space (where the interaction effects occur among 4 out of 7 predictors) into regions in such way that minimicing the non-linear data as well as interactions among the predictors.
+
+# References
+```{r results = "asis", echo = FALSE}
+PrintBibliography(bib, .opts = list(bib.style = "alphabetic"))
+```

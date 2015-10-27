@@ -1,0 +1,557 @@
+---
+title: "Chapter 9"
+output:
+  html_document:
+    toc: true
+---
+
+```` {r setup, include = FALSE, cache = FALSE}
+# library(knitr)
+# opts_chunk$set(cache=T)
+options(warn=-1)
+```
+
+##Conceptual
+###Excercise 1a
+$$
+\begin{array}{l}
+1 + 3{X_1} - {X_2} = 0\\
+{X_2} = 3{X_1} + 1
+\end{array}
+$$
+
+```{r cache=TRUE}
+# Draw an empty plot
+plot(0, 0, type="n", xlim=c(-1.8, 1.8), ylim = c(-5, 9), xlab = expression(X[1]), ylab = expression(X[2]))
+for ( x1 in seq(-2,2,length.out = 100) ) {
+  for ( x2 in seq(-6,10,length.out = 100) ) {
+    y = 1 + 3*x1 - x2
+    if ( y > 0 ) {
+      points(x1, x2, pch = 20, cex = 0.3, col = adjustcolor("red", 0.4))
+    } else {
+      points(x1, x2, pch = 20, cex = 0.3, col = adjustcolor("blue", 0.4))
+    }
+  }
+}
+text(-0.5, 6, label = expression(1+3*X[1]-X[2]<0), cex = 2)
+text(1, -2.5, label = expression(1+3*X[1]-X[2]>0), cex = 2)
+abline(1, 3, col = "black", lwd = 2)
+```
+
+###Excercise 1b
+$$
+\begin{array}{l}
+ - 2 + {X_1} + 2{X_2} = 0\\
+{X_2} =  - \frac{1}{2}{X_1} + 1
+\end{array}
+$$
+
+```{r cache=TRUE}
+plot(0, 0, type="n", xlim=c(-1.8, 1.8), ylim = c(-5, 9), xlab = expression(X[1]), ylab = expression(X[2]))
+for ( x1 in seq(-2,2,length.out = 100) ) {
+  for ( x2 in seq(-6,10,length.out = 100) ) {
+    y = -2 + x1 + 2 * x2
+    if ( y > 0 ) {
+      points(x1, x2, pch = 20, cex = 0.3, col = adjustcolor("blue", 0.4))
+    } else {
+      points(x1, x2, pch = 20, cex = 0.3, col = adjustcolor("red", 0.4))
+    }
+  }
+}
+text(-0.5, 6, label = expression(-2+X[1]+2*X[2]>0), cex = 2)
+text(1, -2.5, label = expression(-2+X[1]+2*X[2]<0), cex = 2)
+abline(1, -0.5, col = "black", lwd = 2)
+```
+
+###Excercise 2a
+$$
+\begin{array}{l}
+{(1 + {X_1})^2} + {(2 - {X_2})^2} = 4\\
+{X_2} = 2 \pm \sqrt {4 - {{(1 + {X_1})}^2}} 
+\end{array}
+$$
+, where $ - 3 \le {X_1} \le 1,0 \le {X_2} \le 4$.
+
+```{r cache=TRUE}
+plot(0, 0, type="n", xlim=c(-3, -1), ylim = c(0, 4), xlab = expression(X[1]), ylab = expression(X[2]))
+curve(2+sqrt(4-(1+x)^2), from = -3, to = -1, add = T, lwd = 2)
+curve(2-sqrt(4-(1+x)^2), from = -3, to = -1, add = T, lwd = 2)
+```
+
+###Excercise 2b
+```{r cache=TRUE}
+plot(0, 0, type="n", xlim=c(-3, -1), ylim = c(0, 4), xlab = expression(X[1]), ylab = expression(X[2]))
+curve(2+sqrt(4-(1+x)^2), from = -3, to = -1, add = T, lwd = 2)
+curve(2-sqrt(4-(1+x)^2), from = -3, to = -1, add = T, lwd = 2)
+for ( x1 in seq(-4,5,length.out = 300) ) {
+  for ( x2 in seq(-1,5,length.out = 150) ) {
+    y = (1+x1)^2+(2-x2)^2
+    if ( y > 4 ) {
+      points(x1, x2, pch = 20, cex = 0.3, col = adjustcolor("blue", 0.4))
+    } else {
+      points(x1, x2, pch = 20, cex = 0.3, col = adjustcolor("red", 0.4))
+    }
+  }
+}
+text(-2.6, 3.8, label = expression((1+x[1])^2+(2-x[2])^2>4), cex = 1.5)
+text(-2.0, 2, label = expression((1+x[1])^2+(2-x[2])^2<=4), cex = 1.5)
+```
+
+###Excercise 2c
+```{r cache=TRUE}
+eq = function(x1, x2){(1+x1)^2+(2-x2)^2}
+```
+$f(-1,1)$ = `r eq(-1,1)` $\le 4$, _red_.  
+$f(2,2)$ = `r eq(2,2)` $> 4$, _blue_.  
+$f(3,8)$ = `r eq(3,8)` $> 4$, _blue_.
+
+###Excercise 2d
+$$
+\begin{array}{l}
+f(X) &=& {(1 + {X_1})^2} + {(2 - {X_2})^2} - 4\\
+ &=& 1 + 2{X_1} - 4{X_2} + X_1^2 + X_2^2
+\end{array}
+$$
+, which can be transformed into form of higher dimension:
+$$
+g(X) = {\beta _0} + {\beta _1}{X_1} + {\beta _2}{X_2} + {\beta _3}X_1^2 + {\beta _4}X_2^2
+$$
+, where ${\beta _0} = 1,{\beta _1} = 2,{\beta _2} =  - 4,{\beta _3} = 1,{\beta _4} = 1$.
+
+Therefore, we can say $f(X)$, though is non-linear in terms of $X_1$ and $X_2$, is indeed linear in terms of $X_1$, $X_2$, $X_1^2$ and $X_2^2$.
+
+###Excercise 3a
+```{r fig.width=7, fig.height=6, cache=TRUE}
+x1 = c(3,2,4,1,2,4,4)
+x2 = c(4,2,4,4,1,3,1)
+y = c(1,1,1,1,-1,-1,-1)
+plot(0, 0, type="n", xlim=c(0, 5), ylim = c(0, 5), xlab = expression(X[1]), ylab = expression(X[2]))
+points(x1[y==1], x2[y==1], pch = 20, cex = 1.5, col = "dodgerblue2")
+points(x1[y==-1], x2[y==-1], pch = 20, cex = 1.5, col = "palevioletred3")
+```
+
+###Excercise 3b
+```{r fig.width=7, fig.height=6, cache=TRUE}
+plot(0, 0, type="n", xlim=c(0, 5), ylim = c(0, 5), xlab = expression(X[1]), ylab = expression(X[2]))
+points(x1[y==1], x2[y==1], pch = 20, cex = 1.5, col = "dodgerblue2")
+points(x1[y==-1], x2[y==-1], pch = 20, cex = 1.5, col = "palevioletred3")
+abline(-0.5, 1, lwd = 2)
+```
+
+The euqation of the optimal separating hyperplane is
+$$
+-0.5 + X_1 - X_2 = 0.
+$$
+
+###Excercise 3c 
+Classify to __red__ if $-0.5 + X_1 - X_2 > 0$.  
+Classify to __blue__ if $-0.5 + X_1 - X_2 \le 0$.
+
+###Excercise 3d
+```{r fig.width=7, fig.height=6, cache=TRUE}
+plot(0, 0, type="n", xlim=c(0, 5), ylim = c(0, 5), xlab = expression(X[1]), ylab = expression(X[2]))
+for ( x1_pt in seq(-1,6,length.out = 100) ) {
+  for ( x2_pt in seq(-1,6,length.out = 100) ) {
+    y_tmp = x1_pt - x2_pt -0.5
+    if ( y_tmp > 0 ) {
+      points(x1_pt, x2_pt, pch = 20, cex = 0.3, col = adjustcolor("red", 0.4))
+    } else {
+      points(x1_pt, x2_pt, pch = 20, cex = 0.3, col = adjustcolor("blue", 0.4))
+    }
+  }
+}
+points(x1[y==1], x2[y==1], pch = 20, cex = 1.5, col = "dodgerblue2")
+points(x1[y==-1], x2[y==-1], pch = 20, cex = 1.5, col = "palevioletred3")
+abline(-0.5, 1, lwd = 2)
+abline(-1, 1, lwd = 1, lty = 2)
+abline(0, 1, lwd = 1, lty = 2)
+# segments(2, 1, 1.75, 1.25, lwd = 1, lty = 1)
+```
+
+###Excercise 3e
+```{r fig.width=7, fig.height=6, cache=TRUE}
+plot(0, 0, type="n", xlim=c(0, 5), ylim = c(0, 5), xlab = expression(X[1]), ylab = expression(X[2]))
+for ( x1_pt in seq(-1,6,length.out = 100) ) {
+  for ( x2_pt in seq(-1,6,length.out = 100) ) {
+    y_tmp = x1_pt - x2_pt -0.5
+    if ( y_tmp > 0 ) {
+      points(x1_pt, x2_pt, pch = 20, cex = 0.3, col = adjustcolor("red", 0.4))
+    } else {
+      points(x1_pt, x2_pt, pch = 20, cex = 0.3, col = adjustcolor("blue", 0.4))
+    }
+  }
+}
+points(x1[y==1], x2[y==1], pch = 20, cex = 1.5, col = "dodgerblue2")
+points(x1[y==-1], x2[y==-1], pch = 20, cex = 1.5, col = "palevioletred3")
+abline(-0.5, 1, lwd = 2)
+abline(-1, 1, lwd = 1, lty = 2)
+abline(0, 1, lwd = 1, lty = 2)
+points(c(2, 2, 4, 4), c(1, 2, 3, 4), pch = 1, cex = 1.8, col = "green")
+```
+
+###Excercise 3f
+A slight movement of seventh observation (4,3) would not affect the maximal margin hyperplane because it is far from the margin region marked within dashed lines and does not cause the observation to cross the boundary set by the margin.
+
+###Excercise 3g
+```{r fig.width=7, fig.height=6, cache=TRUE}
+plot(0, 0, type="n", xlim=c(0, 5), ylim = c(0, 5), xlab = expression(X[1]), ylab = expression(X[2]))
+points(x1[y==1], x2[y==1], pch = 20, cex = 1.5, col = "dodgerblue2")
+points(x1[y==-1], x2[y==-1], pch = 20, cex = 1.5, col = "palevioletred3")
+abline(0.2, 0.8, lwd = 2, lty = 1, col = "chocolate")
+```
+
+The equation for this hyperplane is $1 + 4X_1 - 5X_2 = 0$.
+
+###Excercise 3h
+```{r fig.width=7, fig.height=6, cache=TRUE}
+plot(0, 0, type="n", xlim=c(0, 5), ylim = c(0, 5), xlab = expression(X[1]), ylab = expression(X[2]))
+points(x1[y==1], x2[y==1], pch = 20, cex = 1.5, col = "dodgerblue2")
+points(x1[y==-1], x2[y==-1], pch = 20, cex = 1.5, col = "palevioletred3")
+points(3, 3.3, pch = 20, cex = 2, col = "palevioletred3")
+```
+
+As shown above, the additional point was enlarged for better illustration.
+
+---------------------------------------------------------------------
+
+##Applied
+###Excercise 4
+```{r fig.width=7, fig.height=6, cache=TRUE}
+set.seed(1)
+x = matrix(rnorm(100*2), ncol = 2)
+x[1:30, ] = x[1:30, ] + 2;
+x[31:60, ] = x[31:60, ] - 2;
+y = c(rep(-1, 60), rep(1, 40))
+set.seed(1)
+train = sample(1:100, 60)
+dat = data.frame(x = x, y = as.factor(y))
+plot(x, col = y + 3, xlab = expression(X[1]), ylab = expression(X[2]))
+```
+
+```{r, cache=TRUE}
+library(e1071)
+svmfit.linear = svm(y~., data = dat[train, ], kernel = "linear")
+plot(svmfit.linear, data = dat)
+svmfit.poly = svm(y~., data = dat[train, ], kernel = "polynomial", degree = 4)
+plot(svmfit.poly, data = dat)
+svmfit.rad = svm(y~., data = dat[train, ], kernel = "radial", gamma = 1, cost = 1e5)
+set.seed(1)
+tune.out = tune(svm, y~., data = dat[train, ], kernel = "radial", ranges = list(cost = c(0.1,1,10,100,1000), gamma = c(0.5,1,2,3,4)))
+summary(tune.out)
+plot(tune.out$best.model, data = dat)
+```
+
+```{r, cache=TRUE}
+linear.yhat = predict(svmfit.linear)
+rad.yhat = predict(tune.out$best.model)
+poly.yhat = predict(svmfit.poly)
+linear.pred = predict(svmfit.linear, newdata = dat[-train, ])
+rad.pred = predict(tune.out$best.model, newdata = dat[-train, ])
+poly.pred = predict(svmfit.poly, newdata = dat[-train, ])
+```
+
+
+For linear SVM, its training and test error rates are:
+```{r, cache=TRUE}
+mean(dat[train, "y"] != linear.yhat)
+mean(dat[-train, "y"] != linear.pred)
+```
+respectively.
+
+
+For polynomial SVM, its training and test error rates are:
+```{r, cache=TRUE}
+mean(dat[train, "y"] != poly.yhat)
+mean(dat[-train, "y"] != poly.pred)
+```
+respectively.
+
+
+For radial SVM, its training and test error rates are:
+```{r, cache=TRUE}
+mean(dat[train, "y"] != rad.yhat)
+mean(dat[-train, "y"] != rad.pred)
+```
+respectively.
+
+
+Comparatively, we can see:
+```{r fig.width = 6, fig.height=4, cache=TRUE}
+barplot(c(mean(dat[train, "y"] != linear.yhat)*100, mean(dat[train, "y"] != poly.yhat)*100, mean(dat[train, "y"] != rad.yhat)*100), col = "red", ylim = c(0,100), names.arg = c("Linear SVM", "Polynomial SVM", "Radial SVM"), main = "Training Error Rate(%)")
+barplot(c(mean(dat[-train, "y"] != linear.pred)*100, mean(dat[-train, "y"] != poly.pred)*100, mean(dat[-train, "y"] != rad.pred)*100), col = "red", ylim = c(0,100), names.arg = c("Linear SVM", "Polynomial SVM", "Radial SVM"), main = "Test Error Rate(%)")
+```
+
+Note that __Radial SVM__ performs best among all three methods evaluated w.r.t. both training error rate and test error rate.
+
+###Excercise 5a
+```{r}
+set.seed(1)
+x1 = runif(500) - 0.5
+x2 = runif(500) - 0.5
+y = 1*(x1^2 - x2^2 > 0)
+```
+
+###Excercise 5b
+```{r, fig.width=7, fig.height=6}
+plot(x1, x2, col = y+2, xlab = expression(X[1]), ylab = expression(X[2]), pch = 20)
+title("Simulated Data")
+```
+
+###Excercise 5c
+```{r}
+glm.fit = glm(y ~ x1 + x2, family = binomial)
+summary(glm.fit)
+```
+
+###Excercise 5d
+```{r, fig.width=7, fig.height=6}
+glm.fit = glm(y~x1 + x2, family = binomial)
+glm.probs = predict(glm.fit, type = "response")
+glm.pred = rep(0, length(glm.probs))
+glm.pred[glm.probs > 0.50] = 1
+table(glm.pred, y)
+mean(glm.pred != y)
+plot(x1, x2, col = glm.pred + 2, xlab = expression(X[1]), ylab = expression(X[2]), pch = 20)
+title("Fitting Results with Logistic Regression")
+```
+
+As shown above, the decision boundary is linear.
+
+###Excercise 5e
+```{r}
+glm.fit = glm(y~ poly(x1, 2) + poly(x2, 2) + I(x1*x2), family = binomial)
+glm.probs = predict(glm.fit, type = "response")
+glm.pred = rep(0, length(glm.probs))
+glm.pred[glm.probs > 0.50] = 1
+table(glm.pred, y)
+mean(glm.pred != y)
+```
+
+Now the logistic regression fits the data perfectly (with training error rate 0%) using transformations of $X_1$ and $X_2$.
+
+###Excercise 5f
+```{r, fig.width=7, fig.height=6}
+plot(x1, x2, col = glm.pred + 2, xlab = expression(X[1]), ylab = expression(X[2]), pch = 20)
+title("Fitting Results with Logistic Regression")
+```
+
+As shown above, the decision boundary now becomes non-linear.
+
+###Excercise 5g
+```{r, fig.width=7, fig.height=6}
+library(e1071)
+dat = data.frame(x2 = x2, x1 = x1, y = as.factor(y))
+svmfit.linear = svm(y~., data = dat, kernel = "linear")
+plot(svmfit.linear, data = dat)
+```
+
+###Excercise 5h
+```{r, fig.width=7, fig.height=6}
+svmfit.rad = svm(y~., data = data.frame(x1 = x1, x2 = x2, y = as.factor(y)), kernel = "radial" , gamma = 1, cost = 1)
+plot(svmfit.rad, data = dat)
+```
+
+###Excercise 5i
+SVM with non-linear kernel outperforms SVM with linear kernel in fitting the data, cause the true relationship between predictors and response is non-linear. Besides, logistic regression with non-linear transformed predictors also fits the data perfectly due to its capability to produce a non-linear decision boundary. 
+
+As we can see: __the additional expressive power earned by adding more transformed terms in logistic regression is tantamount to using the radial basis in SVM__.
+
+###Excercise 6a
+```{r fig.width=7, fig.height=6}
+set.seed(3)
+t1 = runif(60, 0, 5)
+t2 = runif(60, 0, 5)
+ind = t2 - t1 > -0.2
+x1 = t1[ind]; x2 = t2[ind]
+y = rep(1, sum(ind))
+t1 = runif(60, 0, 5)
+t2 = runif(60, 0, 5)
+ind = t2 - t1 < 0.2
+x1 = c(x1, t1[ind]); x2 = c(x2, t2[ind])
+y = c(y, rep(-1, sum(ind)))
+# y = c(rep(1, 30), rep(-1, 30))
+plot(0, 0, type="n", xlim=c(0, 5), ylim = c(0, 5), xlab = expression(X[1]), ylab = expression(X[2]))
+points(x1[y==1], x2[y==1], pch = 20, cex = 1.5, col = "dodgerblue2")
+points(x1[y==-1], x2[y==-1], pch = 20, cex = 1.5, col = "palevioletred3")
+```
+
+###Excercise 6b
+```{r fig.width=7, fig.height=6}
+dat = data.frame(x2 = x2, x1 = x1, y = as.factor(y))
+svmfit = svm(y~., data = dat, kernel = "linear", cost = 1e5)
+plot(svmfit, data = dat)
+```
+
+```{r}
+set.seed(3)
+cost = c(0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30, 100, 300, 1000)
+cost.fac = factor(cost)
+tune.out = tune(svm, y~., data = dat, kernel = "linear", ranges = list(cost = cost))
+summary(tune.out)
+plot(as.numeric(cost.fac), round(tune.out$performances$error*length(y)),  type = "b", xaxt = "n", xlab = "Cost", ylab = "Number of Misclassified Observations in Training Set")
+axis(1, at = 1:length(cost), labels = as.character(cost))
+```
+
+As shown above, the cost value for lowest training errors and lowest cross-validation errors obtained is `r tune.out$best.parameters$cost` with the number of misclassified observations `r round(tune.out$best.performance*length(y))`. 
+
+###Excercise 6c
+```{r fig.width=7, fig.height=6}
+set.seed(1)
+test.x1 = c(runif(20, 0, 3), runif(20, 1.5, 5))
+test.x2 = c(runif(20, 1, 5), runif(20, 0, 3.5))
+test.y = c(rep(1, 20), rep(-1, 20))
+plot(0, 0, type="n", xlim=c(0, 5), ylim = c(0, 5), xlab = expression(X[1]), ylab = expression(X[2]))
+points(x1[y==1], x2[y==1], pch = 20, cex = 1.5, col = "dodgerblue2")
+points(x1[y==-1], x2[y==-1], pch = 20, cex = 1.5, col = "palevioletred3")
+points(test.x1[test.y==1], test.x2[test.y==1], pch = 2, cex = 1.5, col = "dodgerblue2")
+points(test.x1[test.y==-1], test.x2[test.y==-1], pch = 4, cex = 1.5, col = "palevioletred3")
+legend("topright", legend = c("Training:class 1", "Training: class -1", "Test: class 1", "Test: class -1"), col = c("dodgerblue2","palevioletred3","dodgerblue2","palevioletred3"), pch = c(20,20,2,4))
+```
+
+```{r}
+test.dat = data.frame(x1 = test.x1, x2 = test.x2, y = as.factor(test.y))
+set.seed(1)
+test_errors = c()
+for ( i in 1:length(cost) ) {
+  svmfit = svm(y~., data = dat, kernel = "linear", cost = cost[i])
+  test_errors[i] = mean(predict(svmfit, newdata = test.dat) != test.y)
+}
+plot(as.numeric(cost.fac), round(test_errors*length(test.y)), type = "b", xaxt = "n", xlab = "Cost", ylab = "Number of Misclassified Observations in Test Set")
+axis(1, at = 1:length(cost), labels = as.character(cost))
+```
+
+When cost is `r cost[which.min(test_errors)]`, the test error is lowest (and the number of misclassified test observations is `r round(min(test_errors)*length(test.y))`). The best cost value needed for testing is less than the one needed for training (which is `r tune.out$best.parameters$cost`).
+
+###Excercise 6d
+The result indicates that the best cost value chosen w.r.t. training errors and cross-validation errors is greater than the one chosen w.r.t. test errors, which conforms to the claim at the end of Section 9.6.1.
+
+###Excercise 7a
+```{r, cache=TRUE}
+library(ISLR)
+highMpg = rep(0, nrow(Auto))
+highMpg[Auto$mpg > median(Auto$mpg)] = 1
+highMpg = as.factor(highMpg)
+Auto = subset(Auto, select = -mpg)
+Auto = cbind(Auto, highMpg)
+attach(Auto)
+```
+
+###Excercise 7b
+```{r, cache=TRUE}
+library(e1071)
+set.seed(1)
+cost = c(0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30, 100, 300, 1000)
+cost.fac = factor(cost)
+tune.out.linear = tune(svm, highMpg~., data = Auto, kernel = "linear", ranges = list(cost = cost))
+summary(tune.out.linear)
+plot(as.numeric(cost.fac), tune.out.linear$performances$error, type = "b", xaxt = "n", xlab = "Cost", ylab = "Cross-validation Error")
+axis(1, at = 1:length(cost), labels = as.character(cost))
+```
+
+As shown above, the cross-validation error is lowest when cost is `r tune.out.linear$best.parameters$cost`.
+
+###Excercise 7c
+```{r, cache=TRUE}
+set.seed(3)
+tune.out.poly = tune(svm, highMpg~., data = Auto, kernel = "polynomial", ranges = list(cost = cost, degree = seq(1:8)))
+summary(tune.out.poly)
+```
+
+The best cost and degree for polynomial SVM are `r tune.out.poly$best.parameters$cost` and `r tune.out.poly$best.parameters$degree` respectively.
+
+```{r, cache=TRUE}
+set.seed(2)
+tune.out.rad = tune(svm, highMpg~., data = Auto, kernel = "radial", ranges = list(cost = cost, gamma = c(0.5,1,2,3,4)))
+summary(tune.out.rad)
+```
+
+The best cost and gamma for radial SVM are `r tune.out.rad$best.parameters$cost` and `r tune.out.rad$best.parameters$gamma` respectively.
+
+###Excercise 7d
+```{r, cache=TRUE}
+plot(tune.out.linear$best.mode, Auto, weight~horsepower)
+plot(tune.out.poly$best.mode, Auto, weight~horsepower)
+plot(tune.out.rad$best.mode, Auto, weight~horsepower)
+rm(list = ls())
+```
+
+###Excercise 8a
+```{r}
+library(ISLR)
+library(e1071)
+attach(OJ)
+set.seed(1)
+train = sample(1:nrow(OJ), 800)
+train.Y = Purchase[train]
+test.Y = Purchase[-train]
+test.X = OJ[-train, ]
+```
+
+###Excercise 8b
+```{r}
+svmfit = svm(Purchase~., data = OJ[train, ], kernel = "linear", cost = 0.01)
+summary(svmfit)
+```
+
+###Excercise 8c
+```{r}
+train_pred = predict(svmfit)
+mean(train_pred != train.Y)
+test_pred = predict(svmfit, newdata = test.X)
+mean(test_pred != test.Y)
+```
+
+The training error rate and test error rate are `r sprintf("%.1f", mean(train_pred != train.Y)*100)`% and `r sprintf("%.1f", mean(test_pred != test.Y)*100)`% respectively.
+
+###Excercise 8d
+```{r}
+set.seed(3)
+tune.out = tune(svm, Purchase~., data = OJ[train, ], kernel = "linear", ranges = list(cost = c(0.01, 0.03, 0.1, 0.3, 1, 3, 10)))
+summary(tune.out)
+```
+
+The optimal cost is `r tune.out$best.parameter$cost`.
+
+###Excercise 8e
+```{r}
+train_pred.linear = predict(tune.out$best.model)
+mean(train_pred.linear != train.Y)
+test_pred.linear = predict(tune.out$best.model, newdata = test.X)
+mean(test_pred.linear != test.Y)
+```
+
+With the optimal cost `r tune.out$best.parameter$cost`, for linear SVM,  the training error rate and test error rate are `r sprintf("%.1f", mean(train_pred.linear != train.Y)*100)`% and `r sprintf("%.1f", mean(test_pred.linear != test.Y)*100)`% respectively for linear.
+
+###Excercise 8f
+```{r}
+set.seed(3)
+tune.out = tune(svm, Purchase~., data = OJ[train, ], kernel = "radial", ranges = list(cost = c(0.01, 0.03, 0.1, 0.3, 1, 3, 10)))
+summary(tune.out)
+train_pred.rad = predict(tune.out$best.model)
+mean(train_pred.rad != train.Y)
+test_pred.rad = predict(tune.out$best.model, newdata = test.X)
+mean(test_pred.rad != test.Y)
+```
+
+With the optimal cost `r tune.out$best.parameter$cost`, for radial SVM, the training error rate and test error rate are `r sprintf("%.1f", mean(train_pred.rad != train.Y)*100)`% and `r sprintf("%.1f", mean(test_pred.rad != test.Y)*100)`% respectively.
+
+###Excercise 8g
+```{r}
+set.seed(3)
+tune.out = tune(svm, Purchase~., data = OJ[train, ], kernel = "polynomial", degree = 2, ranges = list(cost = c(0.01, 0.03, 0.1, 0.3, 1, 3, 10)))
+summary(tune.out)
+train_pred.poly = predict(tune.out$best.model)
+mean(train_pred.poly != train.Y)
+test_pred.poly = predict(tune.out$best.model, newdata = test.X)
+mean(test_pred.poly != test.Y)
+```
+
+With the optimal cost `r tune.out$best.parameter$cost`, for polynomial SVM, the training error rate and test error rate are `r sprintf("%.1f", mean(train_pred.poly != train.Y)*100)`% and `r sprintf("%.1f", mean(test_pred.poly != test.Y)*100)`% respectively.
+
+###Excercise 8h
+```{r fig.width = 6, fig.height=4, cache=TRUE}
+barplot(c(mean(train_pred.linear != train.Y)*100, mean(train_pred.rad != train.Y)*100, mean(train_pred.poly != train.Y)*100), col = "red", ylim = c(0,30), names.arg = c("Linear SVM", "Radial SVM", "Polynomial SVM"), main = "Training Error Rate(%)")
+barplot(c(mean(test_pred.linear != test.Y)*100, mean(test_pred.rad != test.Y)*100, mean(test_pred.poly != test.Y)*100), col = "red", ylim = c(0,30), names.arg = c("Linear SVM", "Radial SVM", "Polynomial SVM"), main = "Test Error Rate(%)")
+```
+
+Overall, __radial SVM__ gives the best results on this data.

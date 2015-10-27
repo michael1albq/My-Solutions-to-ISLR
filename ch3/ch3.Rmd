@@ -1,0 +1,727 @@
+---
+title: "Chapter 3"
+output:
+  html_document:
+    toc: true
+---
+
+```` {r setup, include = FALSE, cache = TRUE}
+# library(knitr)
+# opts_chunk$set(cache=T)
+options(warn=-1)
+```
+
+## Conceptual
+###Excercise 1
+Intercept:  
+$H_0$: Intercept term = 0, given any combinations of coefficients of TV, Radio and Newspaper.  
+Conclusion: Without any advertising of TV, Radio, and Newspaper, sales is approximately 2939 units.
+
+TV:  
+$H_0$: TV coefficient = 0, given fixed coefficients of Radio and Newspaper.  
+Conclusion: Given certain amount of Radio and Newspaper advertising, spending an additional $1,000 in TV advertising leads to an increase in sales by approximately 46 units.
+
+Radio:  
+$H_0$: Radio coefficient = 0, given fixed coefficients of TV and Newspaper.  
+Conclusion: Given certain amount of TV and Newspaper advertising, spending an additional $1,000 in Radio advertising leads to an increase in sales by approximately 189 units.
+
+Newspaper:  
+$H_0$: Newspaper coefficient = 0, given fixed coefficients of TV and Radio.  
+Conclusion: Given certain amount of TV and Radio advertising, there is no relationship between Newspaper advertising and sales.
+
+###Excercise 2
+| Explanation | KNN Classifier | KNN Regression |
+|:-:|:-:|:-:|
+| Math  | $\mathop {max}\limits_j \Pr (Y = j|X = {X_0}) = \frac{1}{K}\sum\limits_{i \in {N_0}} {I({y_i} = j)}$ | $\hat f({x_0}) = \frac{1}{K}\sum\limits_{i \in {N_0}} {{y_i}}$ |
+| Math Explanation | By using indicator function, KNN Classifier statistically analyzes classes of neighborhood points and picks up the class with largest proportion where the probability of certain class to test data is maximized among all factors. | KNN Regression calculates the average of responses of neighborhood points and treats that average as the expectation of regression model. |
+| Usage | Qualitative (categorical) data | Quantitative data |
+
+  
+###Excercise 3a
+| ${X_i}$  | Intercept  | Black | IQ | Gender (M/F:0/1) |  GPA & IQ | GPA & Gender  |
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| ${\beta _i}$ |  50 | 20  | 0.07  | 35 | 0.01 | -10  |
+
+i. Incorrect: Gender of Female has a positive correlation with response.  
+ii. Correct: given fixed GPA and IQ, female earn more (35k) salary than male, on average.  
+iii. Correct:
+$$
+\begin{array}{l}
+Y & = & 50 + 20 \times {\rm{GPA}} + 0.07 \times {\rm{IQ}} + 35 \times {\rm{Gender}} - 10 \times {\rm{GPA}} \times {\rm{Gender}} + 0.01 \times {\rm{GPA}} \times {\rm{IQ}}\\
+  & = & 50 + (20 - 10 \times {\rm{Gender}} + 0.01 \times {\rm{IQ}}) \times {\rm{GPA}} + 35 \times {\rm{Gender}}\\
+Y & = & 50 + (20 + 0.01 \times {\rm{IQ}}) \times {\rm{GPA}}, {\rm{provided~}} {\rm{Gender}} = {\rm{Male}}\\
+Y & = & 50 + (10 + 0.01 \times {\rm{IQ}}) \times {\rm{GPA}} + 35, {\rm{provided~}} {\rm{Gender}} = {\rm{Female}}
+\end{array}
+$$
+Therefore, we are comparing:
+
+  | Male | Female |
+  |:--------------:|:-------------:|
+  | $50 + 0.07 \times {\rm{IQ}} + (20 + 0.01 \times {\rm{IQ}}) \times {\rm{GPA}}$ | $0.07 \times {\rm{IQ}} + 50 + (10 + 0.01 \times {\rm{IQ}}) \times {\rm{GPA}} + 35$ |
+  | $(20 + 0.01 \times {\rm{IQ}}) \times {\rm{GPA}}$ | $(10 + 0.01 \times {\rm{IQ}}) \times {\rm{GPA}} + 35$ | 
+
+Provided that GPA is high enough, lhs will be greater than rhs, i.e., on average, males earn more  than females.  
+iv. Incorrect
+
+###Excercise 3b
+$$
+\begin{array}{l}
+Y & = & 50 + (20 - 10 \times {\rm{Gender}} + 0.01 \times {\rm{IQ}} \times {\rm{GPA}} + 0.07 \times {\rm{IQ}} + 35 \times {\rm{Gender}}\\
+  & = & 50 + (20 - 10 + 0.01 \times 110) \times 4.0 + 0.07 \times 110 + 35\\
+  & = & 137.1
+\end{array}
+$$
+
+###Excercise 3c
+Evidence of interaction does not depend on the magnitude of coefficient of the interaction term, rather it depends on whether corresponding p-value is smaller than the cutoff value. However, magnitude of coefficient of the interaction term indicates the effect of interaction.
+
+###Excercise 4
+```{r fig.width=6, fig.height=4,echo=FALSE}
+library(png)
+library(grid)
+img <- readPNG('Flexibility vs Error.png')
+grid.raster(img)
+# ![Flexibility vs. Error](Flexibility vs Error.png)
+```
+
+
+###Excercise 4a
+We would expect training RSS for the cubic regression smaller than one for the linear regression. Since the true relationship is linear, cubic regression is much more biased than linear regression, based on which the training RSS will be smaller.
+
+###Excercise 4b
+We would expect test RSS for the linear regression smaller than one for the linear regression. Since the true relationship is linear, fitting the data using cubic regression will bring unnecessary complexity thus resulting in high variance, by which the test error can be high.
+
+###Excercise 4c
+Still, we would expect training RSS for the cubic regression smaller than the one for linear regression, cause training error will decrease as the flexibility increases.
+
+###Excercise 4d
+There is not enough information to tell. Because test RSS is a U-shape curve versus model flexibility. Since we don't know how far the true relationship is from linear, it is possible that test RSS with high flexibility model is higher, lower, or even same with the one of linear regression.
+
+###Excercise 5
+Since ${\hat y_i} = {x_i}\hat \beta$, where $\hat \beta  = \frac{{\sum\limits_{i = 1}^n {{x_i}{y_i}} }}{{\sum\limits_{i' = 1}^n {x_{i'}^2} }}$.
+
+Therefore, we have:
+$$
+{\hat y_t} = {x_t}\hat \beta  = {x_t}\frac{{\sum\limits_{i = 1}^n {{{x'}_i}{{y'}_i}} }}{{\sum\limits_{k = 1}^n {x_k^2} }} = \frac{{\sum\limits_{i = 1}^n {{{x'}_i}{x_t}} }}{{\sum\limits_{k = 1}^n {x_k^2} }}{y'_i}
+$$
+
+and, 
+$$
+{\hat y_i} = \sum\limits_{i = 1}^n {{a_i}{{y'}_i}}  = \sum\limits_{i = 1}^n {\frac{{{{x'}_i}{x_t}}}{{\sum\limits_{k = 1}^n {x_k^2} }}{{y'}_i}} 
+$$
+
+So, 
+$$
+{a_i} = \frac{{{{x'}_i}{x_t}}}{{\sum\limits_{k = 1}^n {x_k^2} }}{y'_i}
+$$
+
+###Excercise 6
+$$
+{\hat \beta _1}{\kern 1pt}  = \frac{{\sum\nolimits_{i = 1}^n {({x_i} - \bar x)} ({y_i} - \bar y)}}{{{{\sum\nolimits_{i = 1}^n {({x_i} - \bar x)} }^2}}}
+$$
+
+$$
+{\hat \beta _0}{\kern 1pt}  = \bar y - {\hat \beta _1}{\kern 1pt} \bar x
+$$
+
+If ${x_i} = \bar x$, then 
+$$
+{y_i} = {\hat \beta _0} + {\hat \beta _1}{\kern 1pt} {x_i} = (\bar y - {\hat \beta _1}{\kern 1pt} \bar x) + {\hat \beta _1}\bar x = \bar y
+$$
+
+Therefore, Therefore, line of simple linear regression must pass through point $(\bar x,\bar y)$.
+
+###Excercise 7
+Correlation is defined as:
+$$
+{\rm{Cor}}(X,Y) = \frac{{\sum\nolimits_{i = 1}^n {({x_i} - \bar x)({y_i} - \bar y)} }}{{\sqrt {\sum\nolimits_{i = 1}^n {{{({x_i} - \bar x)}^2}{{({y_i} - \bar y)}^2}} } }}
+$$
+
+And R^2 is defined as:
+$$
+{\rm{RSS}} = \sum\limits_{i = 1}^n {{{({y_i} - {{\hat y}_i})}^2}}, {\rm{TSS}} = \sum\limits_{i = 1}^n {{{({y_i} - \bar y)}^2}} 
+$$
+
+$$
+{{\rm{R}}^{\rm{2}}} = \frac{{{\rm{TSS}} - {\rm{RSS}}}}{{{\rm{TSS}}}} = 1 - \frac{{\sum\limits_{i = 1}^n {{{({y_i} - {{\hat y}_i})}^2}} }}{{\sum\limits_{i = 1}^n {{{({y_i} - \bar y)}^2}} }}
+$$
+
+$$
+{\rm{RSS}} = \sum\limits_{i = 1}^n {{{({y_i} - {{\hat y}_i})}^2}}  = \sum\limits_{i = 1}^n {{{(a{x_i} + b - {y_i})}^2}} 
+$$
+
+Let's denote $g(a,b) = \sum\limits_{i = 1}^n {{{(a{x_i} + b - {y_i})}^2}}$.
+
+We've discovered that the loss is optimized at $g(1,0)$.
+
+Take derivatives of $g$ at $(1,0)$, we have:
+$$
+\begin{array}{l}
+\frac{\partial }{{\partial a}}g{(a,b)_{(a = 1,b = 0)}} & = & \sum\limits_{i = 1}^n {2(a{x_i} + b - {y_i})} {x_i}\\
+& = & \sum\limits_{i = 1}^n {2({x_i} - {y_i})} {x_i}\\
+& = & 0
+\end{array}
+$$
+
+$$
+\begin{array}{l}
+\frac{\partial }{{\partial b}}g{(a,b)_{(a = 1,b = 0)}} & = & \sum\limits_{i = 1}^n {2(a{x_i} + b - {y_i})} \\
+& = & \sum\limits_{i = 1}^n {2({x_i} - {y_i})} \\
+& = & 0
+\end{array}
+$$
+
+From the partial with respect to $a$, we get
+$${x_i}{x_i} = {y_i}{x_i}$$
+
+From the partial with respect to $b$, we get
+${x_i} = {y_i}$
+
+Here, we can also deduce that ${\hat y_i} = a{x_i} + b = {x_i}$.
+
+For simplicity, we shift the coordinate system so that $\bar x = 0$ and $\bar y = 0$, therefore, we have
+$$
+\begin{array}{l}
+{{\rm{R}}^{\rm{2}}} & = & 1 - \frac{{\sum\limits_{i = 1}^n {{{({y_i} - {{\hat y}_i})}^2}} }}{{\sum\limits_{i = 1}^n {{{({y_i} - \bar y)}^2}} }} = 1 - \frac{{\sum\limits_{i = 1}^n {y_i^2 + \hat y_i^2 - 2{y_i}{{\hat y}_i}} }}{{\sum\limits_{i = 1}^n {y_i^2} }}\\
+& = & 1 - \frac{{\sum\limits_{i = 1}^n {y_i^2 + x_i^2 - 2{y_i}{x_i}} }}{{\sum\limits_{i = 1}^n {y_i^2} }}\\
+& = & 1 - \frac{{\sum\limits_{i = 1}^n {y_i^2 - {x_i}{x_i}} }}{{\sum\limits_{i = 1}^n {y_i^2} }}\\
+& = & \frac{{\sum\limits_{i = 1}^n {{x_i}{x_i}} }}{{\sum\limits_{i = 1}^n {y_i^2} }}
+\end{array}
+$$
+
+$$
+\begin{array}{l}
+{\rm{Cor}}(X,Y) & = & \frac{{\sum\nolimits_{i = 1}^n {{x_i}{y_i}} }}{{\sqrt {\sum\nolimits_{i = 1}^n {{x_i}^2{y_i}^2} } }} = \frac{{\sum\nolimits_{i = 1}^n {{x_i}{x_i}} }}{{\sqrt {\sum\nolimits_{i = 1}^n {{y_i}^2{y_i}^2} } }}\\
+& = & \frac{{\sum\nolimits_{i = 1}^n {{x_i}{x_i}} }}{{\sqrt {\sum\nolimits_{i = 1}^n {{x_i}{x_i}{y_i}{y_i}} } }}\\
+& = & \sqrt {\frac{{\sum\nolimits_{i = 1}^n {{x_i}{x_i}} }}{{\sum\nolimits_{i = 1}^n {{y_i}{y_i}} }}} 
+\end{array}
+$$
+
+As we can see,
+$$
+{{\rm{R}}^2} = \frac{{\sum\limits_{i = 1}^n {{x_i}{x_i}} }}{{\sum\limits_{i = 1}^n {y_i^2} }} = {\sqrt {\frac{{\sum\nolimits_{i = 1}^n {{x_i}{x_i}} }}{{\sum\nolimits_{i = 1}^n {{y_i}{y_i}} }}} ^2} = {\rm{Cor}}{(X,Y)^2}
+$$
+
+---------------------------------------------------------------------
+
+##Applied
+###Excercise 8a
+```{r}
+library(ISLR)
+attach(Auto)
+lm.fit = lm(mpg~horsepower)
+summary(lm.fit)
+```
+
+1. There is a relationship between mpg and horsepower, since the p-value is less than 2e-16.
+2. The relationship is quite strong cause the p-value is nearly zero, which indicates that the probability of obversing ${\beta _{{\rm{horsepower}}}} = -0.158$ or more extreme cases is nearly zero, provided that ${\beta _{{\rm{horsepower}}}} = 0$.
+3. Negative, becasue $-0.158 < 0$.
+4. Given ${{\rm{horsepower}}} = 98$, its prediction value is
+
+```{r}
+predict(lm.fit, data.frame(horsepower = c(98)))
+```
+
+Also, the corresponding confidence and prediction interval can be calculated as
+
+```{r}
+predict(lm.fit, data.frame(horsepower = (c(98))), interval = "confidence")
+predict(lm.fit, data.frame(horsepower = (c(98))), interval = "prediction")
+```
+
+###Excercise 8b
+Regression line is drawn using
+```{r}
+plot(horsepower, mpg)
+abline(lm.fit, lwd = 3, col = "red")
+```
+
+###Excercise 8c
+Diagnostic plot:
+```{r}
+par(mfrow = c(2,2))
+plot(lm.fit)
+```
+
+Comment: Plot of residuals versus predicted values indicates a strong non-linear pattern in the residuals.
+
+###Excercise 9a
+```{r}
+par(mfrow = c(1,1))
+pairs(Auto)
+```
+
+###Excercise 9b
+```{r}
+cor(subset(Auto, select=-name))
+```
+
+###Excercise 9c
+```{r}
+lm.fit2 = lm(mpg~cylinders+displacement+horsepower+weight+acceleration+year+origin)
+summary(lm.fit2)
+```
+
+Comment:
+
+1. Yes, there is.
+2. Predictors including displacement, weigth, year and origin have a statistically significant relationship to the response.
+3. The coeff for year indicates that for an additional year of car's age, its mpg will on average increase by 0.75.
+
+###Excercise 9d
+```{r}
+par(mfrow = c(2,2))
+plot(lm.fit2)
+```
+
+Comment:
+
+1. The residual VS fitted plot suggests that the variances of the error terms increase with the value of the response (heteroscedasticity).
+2. The redisual vs leverage plot suggests that there is no outlier data while high leverage data (like observation 14) exists.
+
+###Excercise 9e
+```{r}
+par(mfrow = c(1,1))
+lm.fit3 = lm(mpg~.-name + cylinders:horsepower, data = Auto)
+summary(lm.fit3)
+```
+
+###Excercise 9f
+```{r}
+lm.fit4 = lm(mpg~.-name + cylinders:horsepower + I(year^0.5) + log(weight), data = Auto)
+summary(lm.fit4)
+anova(lm.fit3, lm.fit4)
+# clean up
+rm(list = setdiff(ls(), lsf.str()))
+detach(Auto)
+```
+
+Comment:
+
+Results of ANOVA indicate that the multiple linear model with non-linear transformation of the predictors are superior.
+
+###Excercise 10a
+```{r}
+attach(Carseats)
+lm.fit1 = lm(Sales ~ Price + Urban + US)
+summary(lm.fit1)
+```
+
+###Excercise 10b
+Interpretation of each coefficient in the mode:
+1. Price: for addtional one dollar increase in price, the sales will on average decrease by 54 units.
+2. UrbanYes: if the store is in an urban location, the sales will on average decrease by 22 units.
+3.  USYes: if the store is in US, the sales will on average increase by 1,200 units.
+
+###Excercise 10c
+${y_i} = {\beta _0} + {\beta _1}{x_i} + {\beta _2}{x_i} + {\varepsilon _i} = \left\{ {\begin{array}{*{20}{c}}
+{{\beta _0} + {\varepsilon _i},{\rm{~if~i-th~store~is~in~rural~area,~and~is~not~in~US}}}\\
+{\begin{array}{*{20}{c}}
+{{\beta _0} + {\beta _1} + {\varepsilon _i},{\rm{~if~i-th~store~is~in~urban~area}}}\\
+{\begin{array}{*{20}{c}}
+{{\beta _0} + {\beta _2} + {\varepsilon _i},{\rm{~if~i-th~store~is~in~US}}}\\
+\end{array}}
+\end{array}}
+\end{array}} \right.$
+
+###Excercise 10d
+Price and Urban
+
+###Excercise 10e
+```{r}
+lm.fit2 = lm(Sales ~ Price + US)
+summary(lm.fit2)
+```
+
+###Excercise 10f
+```{r}
+anova(lm.fit1, lm.fit2)
+```
+Results of ANOVA failed to reject null hypothesis, meaning the two models fit the data equally well.  
+
+###Excercise 10g
+```{r}
+confint(lm.fit2, level = 0.95)
+```
+
+###Excercise 10h
+Plotting _residual vs fitted value_ and _studentized residual vs fitted value_:
+```{r}
+plot(predict(lm.fit2), residuals(lm.fit2))
+plot(predict(lm.fit2), rstudent(lm.fit2))
+```
+
+Above plots show no evidence of outliers, since the absolute value of studentized residuals of all oberservations are less than 3.
+
+```{r}
+plot(hatvalues(lm.fit2))
+which.max(hatvalues(lm.fit2))
+```
+
+Above plot shows that there exists one high leverage point (_NO._ 43).
+
+```{r}
+# clean up
+rm(list = setdiff(ls(), lsf.str()))
+par(mfrow = c(1,1))
+```
+
+###Excercise 11a
+```{r}
+set.seed(1)
+x = rnorm(100)
+y = 2*x + rnorm(100)
+```
+```{r}
+lm.fit1 = lm(y~x+0) # without intercept term
+summary(lm.fit1)
+```
+
+Comment:
+
+1. The p-value indicates that the probability of obversing $\beta_x = 1.9939$ or more extrem cases provided that $H_0: \beta_x = 0$ is almost zero.
+2. ${\rm R}^2 = 0.7798$ shows that $77.98\%$ of the Total sum of Squares (TSS) have been explained by the simple linear regression model.
+
+###Excercise 11b
+```{r}
+lm.fit2 = lm(x~y+0) # without intercept term
+summary(lm.fit2)
+```
+
+1. The p-value indicates that the probability of obversing $\beta_y = 0.391$ or more extrem cases provided that $H_0: \beta_y = 0$ is almost zero.
+2. ${\rm R}^2 = 0.7798$ shows that $77.98\%$ of the Total sum of Squares (TSS) have been explained by the simple linear regression model.
+
+###Excercise 11c
+The results obtained in (a) have the same ${\rm R}^2$, adjusted ${\rm R}^2$, t value and F-statistic with results in (b).
+
+###Excercise 11d
+$$ \begin{array}{cc}
+t = \beta / SE(\beta) &
+\beta = \frac {\sum{x_i y_i}} {\sum{x_i^2}} &
+SE(\beta) = \sqrt{\frac {\sum{(y_i - x_i \beta)^2}} {(n-1) \sum{x_i^2}}}
+\end{array}
+\\
+\begin{array}{cl}
+t & = &  {\frac {\sum{x_i y_i}} {\sum{x_i^2}}}
+    {\sqrt{\frac {(n-1) \sum{x_i^2}} {\sum{(y_i - x_i \beta)^2}}}}
+\\
+& = & \frac {\sqrt{n-1} \sum{x_i y_i}}
+      {\sqrt{\sum{x_i^2} \sum{(y_i - x_i \beta)^2}}}
+\\
+& = & \frac {\sqrt{n-1} \sum{x_i y_i}}
+      {\sqrt{\sum{x_i^2} \sum{(y_i^2 - 2 \beta x_i y_i  + x_i^2 \beta^2)}}}
+\\
+& = & \frac {\sqrt{n-1} \sum{x_i y_i}}
+      {\sqrt{\sum{x_i^2} \sum{y_i^2} - 
+            \sum{x_i^2} \beta (2 \sum{x_i y_i} - \beta \sum{x_i^2})}}
+\\
+& = & \frac {\sqrt{n-1} \sum{x_i y_i}}
+      {\sqrt{\sum{x_i^2} \sum{y_i^2} - 
+            \sum{x_i y_i} (2 \sum{x_i y_i} - \sum{x_i y_i})}}
+\\
+& = & \frac {\sqrt{n-1} \sum{x_i y_i}} 
+          {\sqrt{\sum{x_i^2} \sum{y_i^2} - (\sum{x_i y_i})^2 }} 
+\end{array}
+$$
+```{r}
+sqrt(length(x) - 1) * sum(x*y) / sqrt(sum(x^2)*sum(y^2) - sum(x*y)^2)
+```
+
+The t-statistic has been verified to be the same with results of the two simple linear regressions.
+
+###Excercise 11e
+Given the result of (d), notwithstanding we change $x$ with $y$, t-statistic remains same for the regression of $x$ onto $y$, comparing to the regression of $y$ onto $x$.
+
+###Excercise 11f
+```{r}
+lm.fit_y_onto_x = lm(y~x)
+summary(lm.fit_y_onto_x)
+lm.fit_x_onto_y = lm(x~y)
+summary(lm.fit_x_onto_y)
+# clean up
+rm(list = setdiff(ls(), lsf.str()))
+```
+
+The t-statistic for above two models are same (18.56).
+
+###Excercise 12a
+$$ \frac{{\sum {{x_i}{y_i}} }}{{\sum {x_i^2} }} = \frac{{\sum {{y_i}{x_i}} }}{{\sum {y_i^2} }} $$
+Therefore, when $\sum {x_i^2}  = \sum {y_i^2}$, the coefficient estimate for the regression of $X$ onto $Y$ is the same as the one for regression of $Y$ on $X$.
+
+###Excercise 12b
+```{r}
+set.seed(1)
+x = rnorm(100)
+y = 2*x
+sum(x^2)
+sum(y^2)
+lm.fit1 = lm(y ~ x + 0)
+lm.fit2 = lm(x ~ y + 0)
+summary(lm.fit1)
+summary(lm.fit2)
+```
+
+The regression coefficient estimates are different for above two models.
+
+###Excercise 12c
+```{r}
+set.seed(1)
+x = rnorm(100)
+y = sample(x, replace = FALSE, 100) # a random permutation
+sum(x^2)
+sum(y^2)
+lm.fit1 = lm(y ~ x + 0)
+lm.fit2 = lm(x ~ y + 0)
+summary(lm.fit1)
+summary(lm.fit2)
+```
+
+The regression coefficient estimates are same for above two models.
+
+```{r}
+# clean up
+rm(list = setdiff(ls(), lsf.str()))
+```
+
+###Excercise 13a
+```{r}
+set.seed(1)
+x = rnorm(100)
+```
+
+###Excercise 13b
+```{r}
+eps = rnorm(100, mean = 0, sd = 0.25)
+```
+
+###Excercise 13c
+```{r}
+y = -1 + 0.5 * x + eps
+length(y)
+```
+Length of $y$ is `r length(y)`. In this model, $\beta_0 = -4$, $\beta_1 = 0.5$.
+
+###Excercise 13d
+```{r}
+plot(x, y)
+```
+
+Comment:
+
+$x$ and $y$ has a positive correlation.
+
+###Excercise 13e
+```{r}
+lm.fit = lm(y~x)
+summary(lm.fit)
+```
+
+Comment:
+
+${\hat \beta _0}$ and ${\hat \beta _1}$ are _almost_ same with $\beta_0$ and $\beta_1$.
+
+###Excercise 13f
+```{r}
+plot(x, y)
+abline(-1, 0.5, lwd = 2, col = "blue", lty = "dashed")
+abline(lm.fit, lwd = 2, col = "red")
+legend("bottomright", c("population regression line", "least squares line"),
+       lty=c(2,1), # gives the legend appropriate symbols (lines)
+       lwd=c(2.5,2.5), col=c("blue","red")) # gives the legend lines the correct color and width
+```
+
+###Excercise 13g
+```{r}
+lm.fit2 = lm(y ~ x + I(x^2))
+summary(lm.fit2)
+```
+
+${\rm R}^2$ remain the same (0.7828) for the two models, therefore, there is no evidence that the quadratic term improves the model fit.
+
+###Excercise 13h
+```{r}
+set.seed(1)
+x = rnorm(100)
+eps = rnorm(100, mean = 0, sd = 0.1)
+y = -1 + 0.5 * x + eps
+lm.fit3 = lm(y~x)
+plot(x, y)
+abline(-1, 0.5, lwd = 2, col = "blue", lty = "dashed")
+abline(lm.fit3, lwd = 2, col = "red")
+legend("bottomright", c("population regression line", "least squares line"),
+       lty=c(2,1), # gives the legend appropriate symbols (lines)
+       lwd=c(2.5,2.5), col=c("blue","red")) # gives the legend lines the correct color and width
+summary(lm.fit3)
+```
+
+Comparing to the regression results of original dataset, ${\rm R}^2$ has been increased from 0.7784 to 0.9565, indicating that the model fits current dataset better.
+
+###Excercise 13i
+```{r}
+set.seed(1)
+x = rnorm(100)
+eps = rnorm(100, mean = 0, sd = 0.5)
+y = -1 + 0.5 * x + eps
+lm.fit4 = lm(y~x)
+plot(x, y)
+abline(-1, 0.5, lwd = 2, col = "blue", lty = "dashed")
+abline(lm.fit4, lwd = 2, col = "red")
+legend("bottomright", c("population regression line", "least squares line"),
+       lty=c(2,1), # gives the legend appropriate symbols (lines)
+       lwd=c(2.5,2.5), col=c("blue","red")) # gives the legend lines the correct color and width
+summary(lm.fit4)
+```
+
+Comparing to the regression results of original dataset, ${\rm R}^2$ has been decreased from 0.7784 to 0.4674, indicating that the model fits original dataset better.
+
+###Excercise 13j
+```{r}
+confint(lm.fit)  # original dataset
+confint(lm.fit3) # less noisy dataset
+confint(lm.fit4) # noiser dataset
+# clean up
+rm(list = setdiff(ls(), lsf.str()))
+```
+
+Comment:
+
+Rank in ascending order based on the width of confidence interval for coefficients of both intercept and $x$:
+
+less noisy dataset < original dataset < noisier dataset
+
+###Excercise 14a
+```{r}
+set.seed(1)
+x1 = runif(100)
+x2 = 0.5* x1 + rnorm(100)/10
+y = 2 + 2*x1 + 0.3*x2 + rnorm(100)
+```
+
+$$
+\begin{array}{l}
+y = {\beta _0} + {\beta _1}{x_1} + {\beta _2}{x_2} + \varepsilon \\
+{\beta _0} = 2\\
+{\beta _1} = 2\\
+{\beta _2} = 0.3
+\end{array}
+$$
+
+###Excercise 14b
+```{r}
+plot(x1, x2)
+```
+
+Above plot shows $x_1$ has a positive correlation with $x_1$.
+
+###Excercise 14c
+```{r}
+lm.fit = lm(y ~ x1 + x2)
+summary(lm.fit)
+```
+
+$\hat \beta_0 = 2.13$, $\hat \beta_1 = 1.44$ and $\hat \beta_2 = 1.01$
+
+Due to p-value for $H_0: \hat \beta_1 = 0$ is 0.0489, which is less than cutoff value 0.05, therefore we can reject the null hypothesis and favor the alternative one.
+
+P-value for $H_0: \hat \beta_2 = 0$ is 0.3754, which is much greater than cutoff value, therefore there is not enough evidence to reject $H_0: \hat \beta_2 = 0$.
+
+###Excercise 14d
+```{r}
+lm.fit2 = lm(y ~ x1)
+summary(lm.fit2)
+```
+
+P-value for $H_0: \hat \beta_1 = 0$ is nearly 0, therefore we can reject the null hypothesis.
+
+###Excercise 14e
+```{r}
+lm.fit3 = lm(y ~ x2)
+summary(lm.fit3)
+```
+
+P-value for $H_0: \hat \beta_2 = 0$ is nearly 0, therefore we can reject the null hypothesis.
+
+###Excercise 14f
+No, the results obtained so far do not contradict each other. Since there is an interaction effect between $x_1$ and $x_2$, increase any of them will increase the other variable and thus help fit the data. Therefore, when we do a linear regression on $x_1$ and $x_2$ individually, we can't reject null hypothesis (i.e., we can't tell which variable indeed has no relationship with $y$). But if $y$ is regressed upon both $x_1$ and $x_2$, in this case, we are able to reject one of them.
+
+
+###Excercise 14g
+```{r}
+summary(x1)
+summary(x2)
+x1 = c(x1, 0.1)
+x2 = c(x2, 0.8)
+y = c(y, 6)
+```
+
+```{r}
+par(mfrow = c(2,2))
+lm.fit4 = lm(y ~ x1 + x2)
+summary(lm.fit4)
+plot(lm.fit4)
+lm.fit5 = lm(y ~ x1)
+summary(lm.fit5)
+plot(lm.fit5)
+lm.fit6 = lm(y ~ x2)
+summary(lm.fit6)
+plot(lm.fit6)
+```
+
+
+After adding new observation in $x_1$, the ${\rm R}^2$ has been decreased from 0.2024 to 0.1562, meaning the newly added observation is an outlier. Furthurmore, the second plots also shows that the newly added observation in $x_1$ is an outlier.
+
+The third plot shows that the newly added observation in $x_2$ is a high leverage point.
+
+```{r}
+# clean up
+rm(list = setdiff(ls(), lsf.str()))
+par(mfrow = c(1,1))
+```
+
+###Excercise 15a
+```{r}
+library(MASS)
+attach(Boston)
+sim_beta_js = c()
+for ( name in names(Boston)[-1] ) {
+  predictor =  c(t(subset(Boston, select = name)))
+  lm.fit = lm(crim ~ predictor)
+  sim_beta_js <- c(sim_beta_js, coef(lm.fit)[2])
+  print(paste("Running simple linear regression on:", name))
+  print(summary(lm.fit))
+}
+```
+
+All predictors except __chas__ are statistical significant.
+
+###Excercise 15b
+```{r}
+lm.fit = lm(crim ~ ., data = Boston)
+summary(lm.fit)
+```
+
+We can reject null hypothesis for predictors including __indus__, __chas__, __nox__, __rm__, __age__, __tax__, __ptratio__, and __lstat__.
+
+###Excercise 15c
+Results in (b) have much more predictors which are not statistically significant comparing to the results in (a).
+
+```{r}
+plot(sim_beta_js, coef(lm.fit)[-1])
+names(Boston)[which.max(sim_beta_js)+1]
+coef(lm.fit)[which.max(sim_beta_js)+1] # in multiple regression model
+max(sim_beta_js) # in univariate regression model
+```
+
+Predictor __nox__ has univariate regression coefficient estimate of 31 and multiple regression coefficient estimate of -10. 
+
+###Excercise 15d
+```{r}
+for ( name in names(Boston)[-1] ) {
+  predictor =  c(t(subset(Boston, select = name)))
+  lm.fit = lm(crim ~ predictor + I(predictor^2) + I(predictor^3)) # adding non-linearity
+  print(paste("Running simple linear regression on:", name))
+  print(summary(lm.fit))
+}
+```
+
+There are evidences of non-linear association between predictor and response for __indus__, __nox__, __dis__, __ptratio__, and __medv__.

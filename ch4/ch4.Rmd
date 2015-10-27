@@ -1,0 +1,639 @@
+---
+title: "Chapter 4"
+output:
+  html_document:
+    toc: true
+---
+
+```` {r setup, include = FALSE, cache = FALSE}
+# library(knitr)
+# opts_chunk$set(cache=T)
+options(warn=-1)
+```
+
+##Conceptual
+###Excercise 1
+Doing a little bit algebra:
+$$
+\begin{array}{l}
+1 - p(X) = 1 - \frac{{{e^{{\beta _0} + {\beta _1}x}}}}{{1 + {e^{{\beta _0} + {\beta _1}x}}}}\\
+1 - p(X) = \frac{1}{{1 + {e^{{\beta _0} + {\beta _1}x}}}}\\
+\frac{1}{{1 - p(X)}} = 1 + {e^{{\beta _0} + {\beta _1}x}}\\
+\frac{{p(X)}}{{1 - p(X)}} = p(X) \times (1 + {e^{{\beta _0} + {\beta _1}x}})\\
+\frac{{p(X)}}{{1 - p(X)}} = \frac{{{e^{{\beta _0} + {\beta _1}x}}}}{{1 + {e^{{\beta _0} + {\beta _1}x}}}} \times (1 + {e^{{\beta _0} + {\beta _1}x}})\\
+\frac{{p(X)}}{{1 - p(X)}} = {e^{{\beta _0} + {\beta _1}x}}
+\end{array}
+$$
+
+###Excercise 2
+Assuming that $f_k(x)$ is normal, the probability that an observation $x$ is in class $k$ is given by
+$$
+p_k(x) = \frac {\pi_k
+                \frac {1} {\sqrt{2 \pi} \sigma}
+                \exp(- \frac {1} {2 \sigma^2} (x - \mu_k)^2)
+               }
+               {\sum {
+                \pi_l
+                \frac {1} {\sqrt{2 \pi} \sigma}
+                \exp(- \frac {1} {2 \sigma^2} (x - \mu_l)^2)
+               }}
+$$
+while the discriminant function is given by
+$$
+\delta_k(x) = x \frac {\mu_k} {\sigma^2} - \frac {\mu_k^2} {2 \sigma^2}
+              + \log(\pi_k)
+$$            
+
+*Claim: Maximizing $p_k(x)$ is equivalent to maximizing $\delta_k(x)$.*
+
+*Proof.* Let $x$ remain fixed and observe that we are maximizing over the parameter $k$. Suppose that $\delta_k(x) \geq \delta_i(x)$. We will show that $f_k(x) \geq f_i(x)$. From our assumption we have
+$$
+x \frac {\mu_k} {\sigma^2} - \frac {\mu_k^2} {2 \sigma^2} + \log(\pi_k)
+\geq
+x \frac {\mu_i} {\sigma^2} - \frac {\mu_i^2} {2 \sigma^2} + \log(\pi_i).
+$$
+Exponentiation is a monotonically increasing function, so the following inequality holds
+$$
+\pi_k \exp (x \frac {\mu_k} {\sigma^2} - \frac {\mu_k^2} {2 \sigma^2})
+\geq
+\pi_i \exp (x \frac {\mu_i} {\sigma^2} - \frac {\mu_i^2} {2 \sigma^2})
+$$
+Multipy this inequality by the positive constant
+$$
+c = \frac {
+                \frac {1} {\sqrt{2 \pi} \sigma}
+                \exp(- \frac {1} {2 \sigma^2} x^2)
+               }
+               {\sum {
+                \pi_l
+                \frac {1} {\sqrt{2 \pi} \sigma}
+                \exp(- \frac {1} {2 \sigma^2} (x - \mu_l)^2)
+               }}
+$$
+and we have that
+$$
+\frac{{{\pi _k}\frac{1}{{\sqrt {2\pi } \sigma }}\exp ( - \frac{1}{{2{\sigma ^2}}}{{(x - {\mu _k})}^2})}}{{\sum {\pi _l}\frac{1}{{\sqrt {2\pi } \sigma }}\exp ( - \frac{1}{{2{\sigma ^2}}}{{(x - {\mu _l})}^2})}}
+$$
+$$
+\frac{{{\pi _i}\frac{1}{{\sqrt {2\pi } \sigma }}\exp ( - \frac{1}{{2{\sigma ^2}}}{{(x - {\mu _i})}^2})}}{{\sum {\pi _l}\frac{1}{{\sqrt {2\pi } \sigma }}\exp ( - \frac{1}{{2{\sigma ^2}}}{{(x - {\mu _l})}^2})}}
+$$
+or equivalently, $f_k(x) \geq f_i(x)$. Reversing these steps also holds, so we have that maximizing $\delta_k$ is equivalent to maximizing $p_k$.
+
+###Excercise 3
+If there is only one feature, i.e., $p = 1$, in QDA, we have Bayes classfier assigning an observation to which the following is largest
+$$
+p_k(x) = \frac{{{\pi _k}\frac{1}{{\sqrt {2\pi } \sigma_k }}\exp ( - \frac{1}{{2{\sigma ^2}}}{{(x - {\mu _k})}^2})}}{{\sum {\pi _l}\frac{1}{{\sqrt {2\pi } \sigma_l }}\exp ( - \frac{1}{{2{\sigma_l ^2}}}{{(x - {\mu _l})}^2})}}
+$$
+Taking the log on each side
+$$
+\begin{array}{l}
+\log ({p_k}(x)) = \log (\frac{{{\pi _k}\frac{1}{{\sqrt {2\pi } {\sigma _k}}}\exp ( - \frac{1}{{2{\sigma ^2}}}{{(x - {\mu _k})}^2})}}{{\sum {{\pi _l}} \frac{1}{{\sqrt {2\pi } {\sigma _l}}}\exp ( - \frac{1}{{2\sigma _l^2}}{{(x - {\mu _l})}^2})}})\\
+{\rm \log} ({p_k}(x))\log (\sum {{\pi _l}} \frac{1}{{\sqrt {2\pi } {\sigma _l}}}\exp ( - \frac{1}{{2\sigma _l^2}}{(x - {\mu _l})^2})) = {\rm \log} ({\pi _k}) - log(\sqrt {2\pi } {\sigma _k}) - \frac{{{{(x - {\mu _k})}^2}}}{{2{\sigma ^2}}}
+\end{array}
+$$
+Since $\log (\sum {{\pi _l}} \frac{1}{{\sqrt {2\pi } {\sigma _l}}}\exp ( - \frac{1}{{2\sigma _l^2}}{(x - {\mu _l})^2}))$ can be treated as constant, equivalently in Baysian classifier, we are trying to find the maximum of the following
+$$
+{\delta _k}(x) = \log ({\pi _k}) - log(\sqrt {2\pi } {\sigma _k}) - \frac{{{{(x - {\mu _k})}^2}}}{{2{\sigma ^2}}}
+$$
+which is the quadratic function of $x$. The proof is done.
+
+###Excercise 4a
+On average, $\frac{1}{10}$ of the avaliable observations we will use to make prediction for single test observation, because observations is uniformly distrubuted (ignoring the cases $X < 0.05$ and $X > 0.95$).
+
+###Excercise 4b
+On average, it will be $\frac{1}{{10}} \times \frac{1}{{10}} = \frac{1}{{100}}$ when $p = 2$.
+
+###Excercise 4c
+On average, it will be ${(\frac{1}{{10}})^{100}} = {10^{ - 100}}$  when $p = 100$.
+
+###Excercise 4d
+Suppose on each dimension, we uniformly divided range of [0, 1] to 100 bins. If we want to find the nearest points within 10% of range of $X_1$, $X_2$ thourgh $X_{100}$ (given $p = 100$), then we need $10^{100}$ of data to cover the range. Therefore, as the $p$ increases, the number of observations needed grows exponentially.
+
+###Excercise 4e
+When $p = 1$, the side length is $0.1$.  
+When $p = 2$, the side length is $\sqrt {0.1}  = 0.32$.  
+When $p = 3$, the side length is ${0.1^{\frac{1}{3}}} = 0.46$.  
+...  
+When $p = n$, the side length is ${0.1^{\frac{1}{n}}}$.
+
+###Excercise 5a
+We expect QDA perform better on training set, whereas LDA perform better on test set.
+
+###Excercise 5b
+We expect QDA perform better on training set, whereas QDA perform better on test set.
+
+###Excercise 5c
+We expect the test prediction accuracy of QDA relative to LDA to improve, cause the more flexible method like QDA will benefit as the sample size $n$ increases where the variance of classifer is becoming not a concern.
+
+###Excercise 5d
+False: though QDA is flexible enough to model a linear decision boundary, due to the high variance of QDA, its performance may not be superior compraing to LDA in test set when the Bayes decision boundary is actually linear.
+
+###Excercise 6a
+$$
+\hat y(x) = \frac{{{e^{{\beta _0} + {\beta _1}{x_1} + {\beta _2}{x_2}}}}}{{1 + {e^{{\beta _0} + {\beta _1}{x_1} + {\beta _2}{x_2}}}}} = \frac{{{e^{ - 6 + 0.05 \times 40 + 3.5}}}}{{1 + {e^{ - 6 + 0.05 \times 40 + 3.5}}}} \approx 0.38
+$$
+
+###Excercise 6b
+$$
+\begin{array}{*{20}{l}}
+{\hat y(x) = \frac{{{e^{{\beta _0} + {\beta _1}{x_1} + {\beta _2}{x_2}}}}}{{1 + {e^{{\beta _0} + {\beta _1}{x_1} + {\beta _2}{x_2}}}}} = 0.5}\\
+\begin{array}{l}
+\frac{{{e^{ - 6 + 0.05{x_1} + 3.5}}}}{{1 + {e^{ - 6 + 0.05{x_1} + 3.5}}}} = 0.5\\
+\frac{1}{{1 + {e^{ - 6 + 0.05{x_1} + 3.5}}}} = 0.5
+\end{array}\\
+\begin{array}{l}
+1 + {e^{ - 6 + 0.05{x_1} + 3.5}} = 2\\
+{e^{ - 2.5 + 0.05{x_1}}} = 1\\
+{x_1} = 2.5/0.05\\
+{x_1} = 50
+\end{array}
+\end{array}
+$$
+
+###Excercise 7
+$$
+\begin{array}{l}
+\Pr (Y = {\rm{Yes}}|X = x) = \frac{{{\pi _{{\rm{Yes}}}}{f_{{\rm{Yes}}}}(x)}}{{{\pi _{{\rm{Yes}}}}{f_{{\rm{Yes}}}}(x) + {\pi _{{\rm{No}}}}{f_{{\rm{No}}}}(x)}}\\
+ = \frac{{0.8 \times {f_{{\rm{Yes}}}}(x)}}{{0.8 \times {f_{{\rm{Yes}}}}(x) + 0.2 \times {f_{{\rm{No}}}}(x)}}\\
+ = \frac{{0.8 \times \frac{1}{{\sqrt {2\pi {\sigma ^2}} }}{e^{\frac{{ - {{(x - {{\bar X}_{{\rm{Yes}}}})}^2}}}{{2{\sigma ^2}}}}}}}{{0.8 \times \frac{1}{{\sqrt {2\pi {\sigma ^2}} }}{e^{\frac{{ - {{(x - {{\bar X}_{{\rm{Yes}}}})}^2}}}{{2{\sigma ^2}}}}} + 0.2 \times \frac{1}{{\sqrt {2\pi {\sigma ^2}} }}{e^{\frac{{ - {{(x - {{\bar X}_{{\rm{No}}}})}^2}}}{{2{\sigma ^2}}}}}}}\\
+ = \frac{{0.8 \times \frac{1}{{\sqrt {72\pi } }}{e^{\frac{{ - {{(x - 10)}^2}}}{{72}}}}}}{{0.8 \times \frac{1}{{\sqrt {72\pi } }}{e^{\frac{{ - {{(x - 10)}^2}}}{{72}}}} + 0.2 \times \frac{1}{{\sqrt {72\pi } }}{e^{\frac{{ - {x^2}}}{{72}}}}}}\\
+ = \frac{{0.053 \times {e^{\frac{{ - {{(x - 10)}^2}}}{{72}}}}}}{{0.053 \times {e^{\frac{{ - {{(x - 10)}^2}}}{{72}}}} + 0.013 \times {e^{\frac{{ - {x^2}}}{{72}}}}}}
+\end{array}
+$$
+Substituting $X = 4$, we have
+$$
+\begin{array}{l}
+{p_{{\rm{Yes}}}}(X = 4) = \frac{{0.053 \times {e^{\frac{{ - {{(4 - 10)}^2}}}{{72}}}}}}{{0.053 \times {e^{\frac{{ - {{(4 - 10)}^2}}}{{72}}}} + 0.013 \times {e^{\frac{{ - 16}}{{72}}}}}}\\
+ = \frac{{0.053 \times {e^{ - 0.5}}}}{{0.053 \times {e^{ - 0.5}} + 0.013 \times {e^{\frac{{ - 2}}{9}}}}}\\
+ \approx 0.755
+\end{array}
+$$
+
+###Excercise 8
+Using KNN when $K = 1$ will result in an extremely low error rate in training set. Since in this scenario, we know that the average error rate using KNN is 18%, which means that the error rate in test set using KNN is about 36%. Comparing with error rate in test set of 30% using logistic regression, we can see that logistic regression outperforms KNN (with $K = 1$).
+
+###Excercise 9a
+Given odds of 0.37, we can calculate the probability of people who will default on their credit card payment as follows:
+$$
+\begin{array}{l}
+\frac{{p(X)}}{{1 - p(X)}} = 0.37\\
+1.37 \times p(X) = 0.37\\
+p(X) = \frac{{0.37}}{{1.37}} \approx 0.27
+\end{array}
+$$
+
+###Excercise 9b
+When $p(X) = 0.16$, its odd is readily computed
+$$
+\frac{{p(X)}}{{1 - p(X)}} = \frac{{0.16}}{{0.84}} = 0.19
+$$
+
+--------------------------------------
+
+##Applied Questions
+###Excercise 10a
+```{r fig.height=7, fig.width=10}
+library(ISLR)
+attach(Weekly)
+summary(Weekly)
+pairs(Weekly)
+cor(Weekly[, -9])
+```
+The most apparent pattern is that as the Year increases, the Volume increases with a quadratic form.
+
+```{r}
+plot(Volume, Year)
+```
+
+###Excercise 10b
+```{r}
+glm.fit = glm(Direction~.-Year-Today, data = Weekly, family = binomial)
+summary(glm.fit)
+```
+Only predictor _Lag2_ is statistically significant.
+
+###Excercise 10c
+```{r}
+glm.probs = predict(glm.fit, type = "response")
+contrasts(Direction)
+glm.pred = rep("Down", length(glm.probs))
+glm.pred[glm.probs > .5] = "Up"
+table(glm.pred, Direction)
+mean(glm.pred == Direction)
+```
+The confusion matrix shows that the logistic classifier incorrectly classifies $48/(48+557) = \%7.9$ Ups as Downs, and incorrectly classifies $430/(54+430) = \%88.8$ Downs as Ups.
+
+###Excercise 10d
+```{r}
+train = Year < 2009
+Weekly.test = Weekly[!train, ]
+Direction.test = Direction[!train]
+```
+
+```{r}
+glm.fit = glm(Direction~Lag2, family=binomial, subset=train)
+glm.probs = predict(glm.fit, Weekly.test, type = "response")
+glm.pred = rep("Down", length(glm.probs))
+glm.pred[glm.probs > .5] = "Up"
+table(glm.pred, Direction.test)
+mean(glm.pred == Direction.test)
+```
+
+###Excercise 10e
+```{r}
+library(MASS) # for lda() function
+lda.fit = lda(Direction~Lag2, subset=train)
+lda.pred = predict(lda.fit, Weekly.test)
+lda.class = lda.pred$class
+table(lda.class, Direction.test)
+mean(lda.class == Direction.test)
+```
+
+###Excercise 10f
+```{r}
+qda.fit = qda(Direction~Lag2, subset=train)
+qda.pred = predict(qda.fit, Weekly.test)
+qda.class = qda.pred$class
+table(qda.class, Direction.test)
+mean(qda.class == Direction.test)
+```
+
+###Excercise 10g
+```{r}
+library(class) # for KNN function
+train.X = as.matrix(Lag2[train])
+test.X = as.matrix(Lag2[!train])
+train.Direction = Direction[train]
+set.seed(1)
+knn.pred = knn(train.X, test.X, train.Direction, k = 1)
+table(knn.pred, Direction.test)
+mean(knn.pred == Direction.test)
+```
+
+###Excercise 10h
+Both logistic classifier and LDA have the highest overall accuracy rate %62.5.
+
+###Excercise 10i
+```{r}
+knn_accuracy = c();
+for ( i in 1:100 ) {
+  knn.pred = knn(train.X, test.X, train.Direction, k = i)
+  knn_accuracy[i] = mean(knn.pred == Direction.test)
+}
+plot(1:100, knn_accuracy, xlab = "K", ylab = "Preciction Accuracy")
+which.max(knn_accuracy)
+```
+
+For KNN, the best result can be obtained when K = `r which.max(knn_accuracy)`.
+
+```{r}
+# clean up
+rm(list = ls())
+```
+
+###Excercise 11a
+```{r}
+mpg01 = rep(0, length(Auto$mpg))
+mpg01[Auto$mpg > median(Auto$mpg)] = 1
+newAuto = data.frame(mpg01 = mpg01, subset(Auto, select=-mpg))
+summary(newAuto)
+```
+
+###Excercise 11b
+```{r fig.height=7, fig.width=10}
+attach(newAuto)
+pairs(newAuto)
+sapply(newAuto, class)
+cor(newAuto[-9])
+par(mfrow = c(2,2))
+boxplot(mpg01, cylinders, xlab = "mpg efficiency", ylab = "cyclinders")
+boxplot(mpg01, displacement, xlab = "mpg efficiency", ylab = "displacement")
+boxplot(mpg01, horsepower, xlab = "mpg efficiency", ylab = "horsepower")
+boxplot(mpg01, weight, xlab = "mpg efficiency", ylab = "weight")
+par(mfrow = c(1,1))
+```
+
+###Excercise 11c
+```{r}
+## 75% of the sample size
+smp_size <- floor(0.75 * nrow(newAuto))
+## set the seed to make partition reproductible
+set.seed(1)
+train_ind <- sample(seq_len(nrow(newAuto)), size = smp_size)
+train = rep(FALSE, nrow(newAuto))
+train[train_ind] = TRUE
+newAuto.train = newAuto[train_ind, ]
+newAuto.test = newAuto[-train_ind, ]
+mpg01.test = mpg01[-train_ind]
+```
+
+###Excercise 11d
+```{r}
+library(MASS) # for lda() function
+lda.fit = lda(mpg01~cylinders+displacement+horsepower+weight, subset=train)
+lda.pred = predict(lda.fit, newAuto.test)
+lda.class = lda.pred$class
+table(lda.class, mpg01.test)
+```
+
+Test error rate for LDA = %`r sprintf("%.2f", mean(lda.class != mpg01.test)*100)`
+
+###Excercise 11e
+```{r}
+qda.fit = qda(mpg01~cylinders+displacement+horsepower+weight, subset=train)
+qda.pred = predict(qda.fit, newAuto.test)
+qda.class = qda.pred$class
+table(qda.class, mpg01.test)
+```
+
+Test error rate for QDA = %`r sprintf("%.2f", mean(qda.class != mpg01.test)*100)`
+
+###Excercise 11f
+```{r}
+glm.fit = glm(mpg01~cylinders+displacement+horsepower+weight, family=binomial, subset=train)
+glm.probs = predict(glm.fit, newAuto.test, type = "response")
+glm.pred = rep(0, length(glm.probs))
+glm.pred[glm.probs > .5] = 1
+table(glm.pred, mpg01.test)
+```
+
+Test error rate for logistic regression = %`r sprintf("%.2f", mean(glm.pred != mpg01.test)*100)`
+
+###Excercise 11g
+```{r}
+library(class)
+set.seed(1)
+train.X = cbind(cylinders, displacement, horsepower, weight)[train, ]
+test.X = cbind(cylinders, displacement, horsepower, weight)[!train, ]
+train.Y = mpg01[train]
+test.Y = mpg01[!train]
+knn_test_error = c();
+for ( i in 1:100 ) {
+  knn.pred = knn(train.X, test.X, train.Y, k = i)
+  knn_test_error[i] = mean(knn.pred != test.Y)*100
+  #sprintf("Test Error for K = %d: ", i, knn_test_error[i])
+}
+plot(1:100, knn_test_error, xlab = "K", ylab = "Test Error Rate (%)")
+which.min(knn_test_error)
+```
+
+When K = `r which.min(knn_test_error)`, KNN classifier performs the best with the test error rate = %`r sprintf("%.2f", min(knn_test_error))`.
+
+###Excercise 12a
+```{r}
+Power = function() 2^3
+```
+Test case : Power(2, 3) = `r Power()`.
+
+###Excercise 12b
+```{r}
+Power2 = function(x, a) x ^ a
+```
+
+Test case : Power2(2, 3) = `r Power2(2, 3)`.
+
+###Excercise 12c
+Power2(10, 3) = `r Power2(10, 3)`.  
+Power2(8, 17) = `r Power2(8, 17)`.  
+Power2(131, 3) = `r Power2(131, 3)`.
+
+###Excercise 12d
+```{r}
+library(MASS)
+Power3 = function(x, a) {
+  return(result <- x^a)
+}
+```
+###Excercise 12e
+```{r}
+xval = 1:10
+# First Caller
+yval = Power3(xval, 2)
+plot(xval, yval, main = "Simple Example of Calling Power3", xlab = "x", ylab = "y")
+lo = loess(yval ~ xval)
+lines(predict(lo), col = 'red', lwd = 2)
+# Second Caller
+yval = log(Power3(xval, 2))
+plot(xval, yval, main = "Simple Example of Calling Power3", xlab = "x", ylab = "Logarithm of y")
+lo = loess(yval ~ xval)
+lines(predict(lo), col = 'red', lwd = 2)
+```
+
+###Excercise 12f
+```{r}
+PlotPower = function(xval, b) {
+  library(MASS)
+  yval <- xval^b
+  plot(xval, yval, main = sprintf("Power %d of x", 2), xlab = "x", ylab = "y")
+  lo = loess(yval ~ xval)
+  lines(predict(lo), col = 'red', lwd = 2)
+}
+```
+
+Calling PlotPower(1:10, 3):
+```{r}
+PlotPower(1:10, 3)
+```
+
+```{r}
+# clean up
+rm(list = ls())
+```
+
+###Excercise 13
+```{r fig.height=7, fig.width=10}
+library(MASS)
+summary(Boston)
+crim01 = rep(0, length(Boston$crim))
+crim01[Boston$crim > median(Boston$crim)] = 1
+newBoston = data.frame(crim01 = crim01, subset(Boston, select=-crim))
+rm(crim01) # crucial!
+attach(newBoston)
+summary(newBoston)
+cor(newBoston)
+pairs(newBoston)
+```
+
+We pick out the six discriminant features according to correlation measurement, they are: indus, nox, age, dis, rad, tax.  
+
+Besides, we've also discovered the following correlations among predictors:
+* indus has strong correlation with nox, age, dis, tax
+* nox has strong correlation with age, dis, and moderate correlation with rad, tax, lastat.
+* age has a strong correlation with dis, and a moderate correlation with lstat.
+* dis has moderate correalation with zn
+* rad has strong correlation with tax
+
+---------------------------
+
+Splitting dataset into training set and test set:
+```{r}
+ratio = 0.75 # ratio of training set to whole set
+sample_size = floor(ratio * nrow(newBoston))
+set.seed(1) # make results reproducible
+train_ind = sample(seq_len(nrow(newBoston)),  replace = FALSE, size = sample_size)
+train = rep(FALSE, nrow(newBoston))
+train[train_ind] = TRUE
+train.X = cbind(indus, nox, age, dis, rad, tax)[train, ]
+test.X = newBoston[!train, ]
+train.Y = crim01[train]
+test.Y = crim01[!train]
+```
+
+---------------------------
+
+Fitting using Logistic regression:
+```{r}
+glm.fit = glm(crim01~indus+nox+age+dis+rad+tax, data = newBoston, family = binomial, subset = train)
+summary(glm.fit)
+glm.probs = predict(glm.fit, test.X, type = "response")
+glm.pred = rep(0, length(glm.probs))
+glm.pred[glm.probs > .5] = 1
+table(glm.pred, test.Y)
+mean(glm.pred == test.Y)
+```
+
+Adding interaction terms, we have
+
+```{r}
+glm.fit2 = glm(crim01~indus+nox+age+dis+rad+tax+
+                 indus:nox+indus:age+indus:dis+indus:tax+nox:age+nox:dis+nox:rad+nox:tax+age:lstat+age:dis+age:lstat+dis:zn+rad:tax, 
+               family = binomial, subset = train)
+summary(glm.fit2)
+glm.probs = predict(glm.fit2, test.X, type = "response")
+glm.pred = rep(0, length(glm.probs))
+glm.pred[glm.probs > .5] = 1
+table(glm.pred, test.Y)
+mean(glm.pred == test.Y)
+```
+
+As we can see from above p-values, we only need to keep interactions of nox:age and dis:zn, then we have:
+
+```{r}
+glm.fit3 = glm(crim01~indus+nox+age+dis+rad+tax+nox:age+dis:zn,
+               family = binomial, subset = train)
+summary(glm.fit3)
+glm.probs = predict(glm.fit3, test.X, type = "response")
+glm.pred = rep(0, length(glm.probs))
+glm.pred[glm.probs > .5] = 1
+table(glm.pred, test.Y)
+mean(glm.pred == test.Y)
+```
+
+Getting rid of _nox_, which is not statistically significant:
+
+```{r}
+glm.fit3 = glm(crim01~indus+age+dis+rad+tax+nox:age+dis:zn,
+               family = binomial, subset = train)
+summary(glm.fit3)
+glm.probs = predict(glm.fit3, test.X, type = "response")
+glm.pred = rep(0, length(glm.probs))
+glm.pred[glm.probs > .5] = 1
+table(glm.pred, test.Y)
+mean(glm.pred == test.Y)
+```
+
+However, the prediction accuracy remains the same comparing to the first two models.
+
+We can also try to add some transformations of predictors:
+
+```{r}
+glm.fit4 = glm(crim01~poly(indus,2)+poly(age,2)+poly(dis,2)+poly(rad,2)+poly(tax,2)+nox:age+dis:zn,
+               family = binomial, subset = train)
+summary(glm.fit4)
+glm.probs = predict(glm.fit4, test.X, type = "response")
+glm.pred = rep(0, length(glm.probs))
+glm.pred[glm.probs > .5] = 1
+table(glm.pred, test.Y)
+mean(glm.pred == test.Y)
+```
+
+The squares of indus, dis, rad, tax are statistically significant, therefore, we have the final combinations of predictors:
+
+```{r}
+glm.fit4 = glm(crim01~I(indus^2)+age+I(dis^2)+poly(rad,2)+poly(tax,2)+nox:age+dis:zn,
+               family = binomial, subset = train)
+summary(glm.fit4)
+glm.probs = predict(glm.fit4, test.X, type = "response")
+glm.pred = rep(0, length(glm.probs))
+glm.pred[glm.probs > .5] = 1
+table(glm.pred, test.Y)
+mean(glm.pred == test.Y)
+```
+
+As we can see, the prediction accuracy has increased from %88.98 to %90.55.
+
+Furthurmore, if we adjust the threshold for logistic regression, using
+
+```{r}
+logistic_pred_accuracy = c()
+cnt = 1
+for ( th in seq(0.1, 0.5, 0.01) ) {
+  glm.pred = rep(0, length(glm.probs))
+  glm.pred[glm.probs > th] = 1
+  logistic_pred_accuracy[cnt] = mean(glm.pred == test.Y)
+  cnt = cnt + 1
+}
+logistic_pred_accuracy
+plot(seq(0.1, 0.5, 0.01), logistic_pred_accuracy, xlab = "Threshold", ylab = "Prediction Accuracy (%)")
+```
+
+where, we can get the best result when threshold = `r seq(0.1, 0.5, 0.01)[which.max(logistic_pred_accuracy)]`.
+
+Therefore, the final performance of logistic regression is %`r sprintf("%.2f", max(logistic_pred_accuracy)*100)`.
+
+------------------------------------
+
+Using KNN classifier
+```{r}
+library(class)
+standardized.X = scale(subset(newBoston, select = c(indus, age, dis, rad, tax)))
+train.X = standardized.X[train, ]
+test.X = standardized.X[!train, ]
+knn_accuracy = c();
+for ( i in 1:100 ) {
+  knn.pred = knn(train.X, test.X, train.Y, k = i)
+  knn_accuracy[i] = mean(knn.pred == test.Y)*100
+}
+plot(1:100, knn_accuracy, xlab = "K", ylab = "Prediction Accuracy (%)")
+which.max(knn_accuracy)
+```
+
+When K = `r which.max(knn_accuracy)`, KNN classifier performs the best with the prediction accuracy = %`r sprintf("%.2f", max(knn_accuracy))`.
+
+------------------------------------
+
+Using LDA classifier
+```{r}
+test.X = newBoston[!train, ]
+library(MASS) # for lda() function
+lda.fit = lda(crim01~I(indus^2)+age+I(dis^2)+poly(rad,2)+poly(tax,2)+nox:age+dis:zn, subset=train)
+lda.pred = predict(lda.fit, test.X)
+lda.class = lda.pred$class
+table(lda.class, test.Y)
+```
+
+Prediction accuracy for LDA = %`r sprintf("%.2f", mean(lda.class == test.Y)*100)`.
+
+------------------------------------
+
+Using QDA classifier
+
+```{r}
+qda.fit = qda(crim01~I(indus^2)+age+I(dis^2)+poly(rad,2)+poly(tax,2)+nox:age+dis:zn, subset=train)
+qda.pred = predict(qda.fit, test.X)
+qda.class = qda.pred$class
+table(qda.class, test.Y)
+```
+
+Prediction accuracy for QDA = %`r sprintf("%.2f", mean(qda.class == test.Y)*100)`.
+
+-------------------------------------
+
+```{r fig.height=5, fig.width=7}
+barplot(c(max(logistic_pred_accuracy)*100, max(knn_accuracy), mean(lda.class == test.Y)*100, mean(qda.class == test.Y)*100), col = "red", ylim = c(0,100), names.arg = c("Logistic Regression", "KNN(K = 1)", "LDA", "QDA"), main = "Test Set Classification Accuracy")
+```
+
+__Finally, we found that there is a tie of best performance (%91.34) between logistic regression and KNN ($K = 1$), meaning that the response has a highly non-linear relationship with the predictors used, of which the data were not necessarily drawn from a normal distribution.__
+
+
+

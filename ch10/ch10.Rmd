@@ -1,0 +1,439 @@
+---
+title: "Chapter 10"
+output:
+  html_document:
+    toc: true
+---
+
+```` {r setup, include = FALSE, cache = FALSE}
+# library(knitr)
+# opts_chunk$set(cache=T)
+options(warn=-1)
+library(RefManageR)
+bib = ReadBib(sprintf("%s/mybib.bib", knitr:::input_dir()), check = "error")
+BibOptions(sorting = "none", style = "markdown", bib.style = "alphabetic")
+```
+
+##Conceptual
+###Excercise 1a*`r Citep(bib, "AmirISLRSol", .opts = list(cite.style= "authoryear"))`
+
+$$
+\frac{1}{|C_k|} \sum\limits_{i,i^{\prime} \in C_k} \sum\limits_{j=1}^p (x_{ij} - x_{i^\prime j})^2 =
+2 \sum\limits_{i \in C_k} \sum\limits_{j=1}^{p} (x_{ij} - \bar{x}_{kj})^2
+\\
+= \frac{1}{|C_k|} \sum\limits_{i,i^{\prime} \in C_k} \sum\limits_{j=1}^p ((x_{ij} - \bar{x}_{kj}) - (x_{i^\prime j} - \bar{x}_{kj}))^2
+\\
+= \frac{1}{|C_k|} \sum\limits_{i,i^{\prime} \in C_k} \sum\limits_{j=1}^p ((x_{ij} - \bar{x}_{kj})^2 - 2 (x_{ij} - \bar{x}_{kj})(x_{i^\prime j} - \bar{x}_{kj}) + (x_{i^\prime j} - \bar{x}_{kj})^2)
+\\
+= \frac{|C_k|}{|C_k|} \sum\limits_{i \in C_k} \sum\limits_{j=1}^p (x_{ij} - \bar{x}_{kj})^2 +
+  \frac{|C_k|}{|C_k|} \sum\limits_{i^{\prime} \in C_k} \sum\limits_{j=1}^p (x_{i^\prime j} - \bar{x}_{kj})^2 -
+  \frac{2}{|C_k|} \sum\limits_{i,i^{\prime} \in C_k} \sum\limits_{j=1}^p (x_{ij} - \bar{x}_{kj})(x_{i^\prime j} - \bar{x}_{kj})
+\\
+= 2 \sum\limits_{i \in C_k} \sum\limits_{j=1}^p (x_{ij} - \bar{x}_{kj})^2 + 0
+$$
+
+###Excercise 1b
+At Step 2(b), above equation shows that by assigning each observation to the cluster whose centroid has the minimum Euclidean distance to the observation, K-means clustering algorithm equivalently decreases the within-cluster variation. At Step 2(a), since arithmetic mean is a least square estimator, recomputing the centroid using arithmetic mean will also minimize the within-cluster sum of squares.
+
+Therefore, K-means algorithm minimizes the same objective (within-cluster variation) in __both__ steps (and there only exists a finite number of such partitionings), resulting in that the algorithm must converge to a __local__ optimum.
+
+###Excercise 2a
+```{r fig.width=7, fig.height=6}
+distM = matrix(c(0, 0.3,0.4,0.7,0.3,0,0.5,0.8,0.4,0.5,0,0.45,0.7,0.8,0.45,0), nrow = 4, ncol = 4)
+hc.complete = hclust(as.dist(distM), method = "complete")
+plot(hc.complete, main = "Complete Linkage", xlab = "", sub = "", cex = .9)
+```
+
+###Excercise 2b
+```{r fig.width=7, fig.height=6}
+hc.single = hclust(as.dist(distM), method = "single")
+plot(hc.single, main = "Single Linkage", xlab = "", sub = "", cex = .9)
+```
+
+###Excercise 2c
+```{r fig.width=7, fig.height=6}
+hc.complete = hclust(as.dist(distM), method = "complete")
+plot(hc.complete, main = "Complete Linkage", xlab = "", sub = "", cex = .9)
+hc.clusters = cutree(hc.complete, 2)
+abline(h = 0.65, col = "red")
+```
+
+Observations {1, 2, 3, 4} are in cluster `r hc.clusters` respectively.
+
+###Excercise 2d
+```{r fig.width=7, fig.height=6}
+hc.single = hclust(as.dist(distM), method = "single")
+plot(hc.single, main = "Single Linkage", xlab = "", sub = "", cex = .9)
+hc.clusters = cutree(hc.single, 2)
+abline(h = 0.42, col = "red")
+```
+
+Observations {1, 2, 3, 4} are in cluster `r hc.clusters` respectively.
+
+###Excercise 2e
+![image_2(e)](figures/2(e).jpg)
+
+###Excercise 3a
+```{r fig.width=7, fig.height=6}
+x1 = c(1,1,0,5,6,4)
+x2 = c(4,3,4,1,2,0)
+plot(x1, x2, col = "darkgray", type = "p", cex = 1.5, xlab = expression(X[1]), ylab = expression(X[2]))
+```
+
+###Excercise 3b
+```{r}
+K = 2
+n = length(x1)
+set.seed(2)
+cluster_labs = sample(1:K, n, replace = T)
+cluster_labs
+```
+
+###Excercise 3c
+```{r}
+centroid.lab1 = c(mean(x1[cluster_labs == 1]), mean(x2[cluster_labs == 1]))
+centroid.lab2 = c(mean(x1[cluster_labs == 2]), mean(x2[cluster_labs == 2]))
+```
+
+###Excercise 3d
+For the first iteration:
+
+```{r fig.width=11, fig.height=6}
+kmeans.fn = function(cluster_labs, x1, x2, n) {
+  centroid.lab1 = c(mean(x1[cluster_labs == 1]), mean(x2[cluster_labs == 1]))
+  centroid.lab2 = c(mean(x1[cluster_labs == 2]), mean(x2[cluster_labs == 2]))
+  par(mfrow = c(1,2))
+  plot(0, 0, type="n", xlim=c(0, 6), ylim = c(0, 4), xlab = expression(X[1]), ylab = expression(X[2]))
+  for ( i in 1:n ) {
+    if (cluster_labs[i] == 1) {
+      points(x1[i], x2[i], cex = 1.5, pch = 20, col = "red")
+    } else {
+      points(x1[i], x2[i], cex = 1.5, pch = 20, col = "blue")
+    }
+  }
+  title("Before Updating Labels")
+  points(centroid.lab1[1], centroid.lab1[2], cex = 1.5, pch = 23, col = adjustcolor("red", 0.5))
+  points(centroid.lab2[1], centroid.lab2[2], cex = 1.5, pch = 23, col = adjustcolor("blue", 0.5))
+  legend("topright", legend = c("Cluster1", "Cluster2", "Centroid of C1", "Centroid of C2"), col = c("red", "blue", adjustcolor("red", 0.5), adjustcolor("blue", 0.5)), pch = c(20, 20, 23, 23))
+  # Calculate sum of squares (for efficiency issue, we didn't calculate Euclidean distance).
+  ss.lab1 = (centroid.lab1[1] - x1)^2 + (centroid.lab1[2] - x2)^2
+  ss.lab2 = (centroid.lab2[1] - x1)^2 + (centroid.lab2[2] - x2)^2
+  # Assign each observation by label of cluster whose Euclidean distance is smallest to that observation
+  plot(0, 0, type="n", xlim=c(0, 6), ylim = c(0, 4), xlab = expression(X[1]), ylab = expression(X[2]))
+  points(centroid.lab1[1], centroid.lab1[2], cex = 1.5, pch = 23, col = adjustcolor("red", 0.5))
+  points(centroid.lab2[1], centroid.lab2[2], cex = 1.5, pch = 23, col = adjustcolor("blue", 0.5))
+  centroid.lab1 = c(); centroid.lab2 = c(); cluster_labs = rep(1, n)
+  for ( i in 1:n ) {
+    if (ss.lab1[i] < ss.lab2[i]) {
+      points(x1[i], x2[i], cex = 1.5, pch = 20, col = "red")
+      cluster_labs[i] = 1 # update cluster label
+    } else {
+      points(x1[i], x2[i], cex = 1.5, pch = 20, col = "blue")
+      cluster_labs[i] = 2 # update cluster label
+    }
+  }
+  title("After Updating Labels")
+  legend("topright", legend = c("Cluster1", "Cluster2", "Centroid of C1", "Centroid of C2"), col = c("red", "blue", adjustcolor("red", 0.5), adjustcolor("blue", 0.5)), pch = c(20, 20, 23, 23))
+  par(mfrow = c(1,1))
+  # Return calculated sum of squares in order to update cluster labels out of the scope of current function
+  return(cluster_labs)
+}
+cluster_labs = kmeans.fn(cluster_labs, x1, x2, n)
+```
+
+
+###Excercise 3e
+For the second iteration:
+
+```{r fig.width=11, fig.height=6}
+cluster_labs = kmeans.fn(cluster_labs, x1, x2, n)
+```
+
+Then, for the third iteration:
+
+```{r fig.width=11, fig.height=6}
+cluster_labs = kmeans.fn(cluster_labs, x1, x2, n)
+```
+
+As shown above, only after __two__ iterations, the clusters obtained stop changing.
+
+###Excercise 3f
+As were shown in the above plots.
+
+###Excercise 4a
+Not enough information to tell: when inter-observation dissimilarities between {1, 2, 3} and {4, 5} were not equal, fusion on the single linkage dendrogram will occur lower on the tree than the fusion on the complete linkage dendrogram, because single linkage method calculated the _smallest_ dissimilarities between pairs of the observations in two clusters and treated it as the dissimilarity between two clusters (height where fusion occurs), whereas the complete linkage method calculated the _largest_ dissimilarities.
+
+However, when the inter-observation dissimilarities between two clusters were equal (i.e. distances between 1->4, 2->4, 3->4, 1->5, 2->5, 3->5 are all same)--for both single and complete linkage method, the fusion height would be the same.
+
+###Excercise 4b
+Fusion in both complete and single linkage dendrogram will occur at the same height, because linkage between two leaves are same for both linkage methods.
+
+###Excercise 5
+For each of the three variable scalings displayed (with $K = 2$):  
+1. Since number of socks purchased by an individual will drive the inter-observation dissimilarities, applying K-means algorithm will result in two clusters based on __purchased items__--_socks_ and _computers_.  
+2. After scaling each variable by its standard deviation, shppers who bought more socks but no computer will be very dissimilar to those who bought computer but bought less socks. Therefore, K-means algorithm will find two clusters expected by the retailer (i.e. by __pattern of shopping activities__): Shppers who bought both socks and computer will much more likely to be clustered together, and those who bought only socks but no computer will be clustered together in addition to that those who bought only computer but no socks will also be clustered togther (there exists no such samples in dataset).  
+3. Since computer is much more expensive than socks, purchases on computer will drive the inter-observation dissimilarities. In this case, K-means will cluster based on shoppers' __consuming capacity__: shoppers who spend more money will more likely to be clustered together.  
+
+###Excercise 6a
+It means that 10% of the variance in the data was contained in the first principal component. From another point of view, 90% of information in the given data set was lost after projecting the observations on the first principal component.
+
+###Excercise 6b
+In pre-analysis step, ${x_{ij}} - {z_{i1}}{\phi _{j1}}$ indicates the information remained after projecting observations onto the first principal component. Replacing all observations $x_{ij}$ with ${x_{ij}} - {z_{i1}}{\phi _{j1}}$ doesn't make sense in terms of reducing sample complexity (or denoising). It is suggested to firstly plot a scree plot w.r.t. number of principal components used, find the elbow point at which the number of principal components are preferred, say it is $T$. Then, we can replace the $i$ th original observation $x_i$ in predictor space of dimension $p = 100$ with $z_i$ in reduced predictor space of dimention $T$ which contains sufficient information (whether it is good approximating original observations using such an elbow point depends on the data set). Afterwards, instead of analyzing on a $1000 \times 100$ matrix, we are now able to reduce its size to $1000 \times T$ where $T \ll 100$. 
+
+Using two-sample t-test on each gene results in $\left( {\begin{array}{*{20}{c}}{100}\\2\end{array}} \right) = 4950$ tests, which is computationally costly to have it done and hard to make an interpretation. Instead, we could try K-means with $K = 2$ to cluster the genes into two groups with different gene's expression measurements.
+
+###Excercise 6c
+First, simulate some data:
+
+```{r}
+# create original random matrix
+set.seed(2)
+x = matrix(rnorm(1000*100), ncol = 100)
+
+# tune the PVE of the first principal component (there may be other better ways to do that):
+# If more features (gene expressions) are deliberately set linear, PVE of the first principal
+# component will be higher.
+for ( i in 1:3) { 
+  set.seed(i)
+  x[i,] = seq(runif(1, min = -20, max = 20), runif(1, min = -5, max = 5), length.out = 100)
+}
+
+# shift the mean to seperate groups
+set.seed(3)
+random_ind = sample(1:100, 50)
+x[, random_ind] = x[, random_ind] + 3 # Control group
+x[, -random_ind] = x[, -random_ind] - 4 # Treatment group
+# data analysis
+summary(apply(x, 2, mean))
+summary(apply(x, 2, var))
+# generate label vector
+labs = rep(2, 100)
+labs[-random_ind] = 1
+```
+
+Then perform pre-analysis on simulation data:
+
+```{r}
+pr.out = prcomp(x, scale = T)
+pr.var = pr.out$sdev^2
+pve = pr.var / sum(pr.var)
+plot(pve, ylim = c(0,1), xlab = "Principal Component", ylab = "Proportion of Variance Explained", type = "b")
+plot(cumsum(pve), ylim = c(0,1), xlab = "Principal Component", ylab = "Accumulative Prop. of Var. Explained", type = "b")
+```
+
+Perform K-means clustering on original data set:
+
+```{r}
+km.out = kmeans(t(x), 2, nstart = 20)
+table(factor(km.out$cluster, levels = c(1,2), labels = c("Control", "Treatment")), factor(labs, levels = c(1,2), labels = c("Control", "Treatment")))
+```
+
+Perform K-means clustering on the first 15 principal component:
+
+```{r}
+km.out = kmeans(t(pr.out$x)[, 1:15], 2, nstart = 20)
+table(factor(km.out$cluster, levels = c(1,2), labels = c("Control", "Treatment")), factor(labs, levels = c(1,2), labels = c("Control", "Treatment")))
+```
+
+We found that for this simulation data set, the K-means method performed perfectly in clustering the original data set. Besides, the PCA method didn't help in clustering with K-means. 
+
+Also, as suggested by `r Citep(bib, "AmirISLRSol", .opts = list(cite.style= "authoryear"))`, it helps to include the _machine userd_ (A vs. B) as a feature of the data set, which could enhance the PVE of the first principal component before applying the two-sample t-test.
+
+__Note__: we may consider other better simulation data sets, cause in this example only the first principal component took up to 10% variance, whereas the remained principal components equally explained the variance, which may rarely happens in real cases.
+
+-----------------------------------
+
+##Applied
+###Excercise 7
+```{r}
+scaled_USArrests = scale(USArrests)
+m = as.dist((1 - cor(t(scaled_USArrests))))
+n = dist(scaled_USArrests, method = "euclidean")^2
+summary(m / n)
+```
+
+###Excercise 8a
+```{r}
+pr.out = prcomp(scaled_USArrests, scale = F)
+pr.var = pr.out$sdev^2
+pve = pr.var / sum(pr.var)
+plot(pve, ylim = c(0,1), xlab = "Principal Component", ylab = "Proportion of Variance Explained", type = "b")
+title("Using Sdev Output")
+```
+
+###Excercise 8b
+```{r}
+pr.out = prcomp(scaled_USArrests, scale = F)
+pve2 = c()
+pr.score = scaled_USArrests %*% pr.out$rotation
+for ( i in 1 : dim(pr.out$rotation)[2] ) {
+  pve2[i] = sum(pr.score[, i]^2) / sum(scaled_USArrests^2)
+}
+plot(pve2, ylim = c(0,1), xlab = "Principal Component", ylab = "Proportion of Variance Explained", type = "b")
+title("Using Principal Component Loadings")
+```
+
+###Excercise 9a
+```{r fig.width=11, fig.height=6}
+hc.complete = hclust(dist(USArrests, method = "euclidean"), method = "complete")
+plot(hc.complete, main = "Complete Linkage", xlab = "", sub = "", cex = .9)
+```
+
+###Excercise 9b
+```{r fig.width=11, fig.height=6}
+hc.complete = hclust(dist(USArrests, method = "euclidean"), method = "complete")
+plot(hc.complete, main = "Complete Linkage", xlab = "", sub = "", cex = .9)
+abline(h = 120, col = "red")
+cutree(hc.complete, 3)
+```
+
+###Excercise 9c
+```{r fig.width=11, fig.height=6}
+hc.complete = hclust(dist(scaled_USArrests, method = "euclidean"), method = "complete")
+plot(hc.complete, main = "Complete Linkage", xlab = "", sub = "", cex = .9)
+```
+
+###Excercise 9d
+After scaling the variables, measure of the dissimilarities at which the fusions occurred (i.e. Height) has decreased. Besides, now the states have been clearly paritioned to 4 clusters instead of 3 clusters before scaling.
+
+
+In my opinion, the variables should be scaled before the inter-observation dissimilarities are computed, because the variables are of different units:
+
+```{r}
+apply(USArrests, 2, mean)
+apply(USArrests, 2, var)
+```
+
+###Excercise 10a
+```{r}
+set.seed(3)
+x = matrix(rnorm(60*50), ncol = 50)
+for ( i in 1:50 ) { # mean shift feature vectors for each class
+  set.seed(i)
+  x[1:20, i] = x[1:20, i] + runif(1, -2, 3)
+  x[41:60, i] = x[41:60, i] - runif(1, -2, 3)
+}
+labs = rep(1, 60)
+labs[21:40] = 2
+labs[41:60] = 3
+```
+
+###Excercise 10b
+```{r}
+Cols = function(vec) {
+  cols = rainbow(length(unique(vec)))
+  return (cols[as.numeric(as.factor(vec))])
+}
+pr.out = prcomp(x, scale = T)
+plot(pr.out$x[, 1:2], col = Cols(labs), pch = 19, xlab = expression(Z[1]), ylab = expression(Z[2]))
+legend("bottomright", legend = c("Cluster1", "Cluster2", "Cluster3"), pch = 19, col = unique(Cols(labs)))
+```
+
+###Excercise 10c
+```{r}
+km.out = kmeans(x, 3, nstart = 20)
+table(factor(km.out$cluster, levels = c(1,3,2), labels = c("K-means Cluster1", "K-means Cluster2", "K-means Cluster3")), factor(labs, levels = c(1,2,3), labels = c("True Cluster1", "True Cluster2", "True Cluster3")))  # be careful with the arbitrarily named cluster names from kmeans
+km.out$cluster
+```
+
+###Excercise 10d
+```{r}
+km.out = kmeans(x, 2, nstart = 20)
+table(factor(km.out$cluster, levels = c(2, 1), labels = c("K-means Cluster1", "K-means Cluster2")), factor(labs, levels = c(1,2,3), labels = c("True Cluster1", "True Cluster2", "True Cluster3")))  # be careful with the arbitrarily named cluster names from kmeans
+km.out$cluster
+```
+
+When $K = 2$, the first cluster obtained contains the observations of both first the second cluster based on original true labels.
+
+###Excercise 10e
+```{r}
+km.out = kmeans(x, 4, nstart = 20)
+table(factor(km.out$cluster, levels = c(1, 4, 3, 2), labels = c("K-means Cluster1", "K-means Cluster2", "K-means Cluster3", "K-means Cluster4")), factor(labs, levels = c(1,2,3), labels = c("True Cluster1", "True Cluster2", "True Cluster3")))  # be careful with the arbitrarily named cluster names from kmeans
+km.out$cluster
+```
+
+When $K = 4$, the third and fourth clusters obtained form the observations of third cluster based on original true labels.
+
+###Excercise 10f
+```{r}
+km.out = kmeans(pr.out$x[, 1:2], 3, nstart = 20)
+table(factor(km.out$cluster, levels = c(3, 2, 1), labels = c("K-means Cluster1", "K-means Cluster2", "K-means Cluster3")), factor(labs, levels = c(1,2,3), labels = c("True Cluster1", "True Cluster2", "True Cluster3")))  # be careful with the arbitrarily named cluster names from kmeans
+km.out$cluster
+```
+
+K-means clustering performed perfectly on the first two principal components obtained.
+
+###Excercise 10g
+```{r}
+km.out = kmeans(scale(x), 3, nstart = 20)
+table(factor(km.out$cluster, levels = c(2,1,3), labels = c("K-means Cluster1", "K-means Cluster2", "K-means Cluster3")), factor(labs, levels = c(1,2,3), labels = c("True Cluster1", "True Cluster2", "True Cluster3")))  # be careful with the arbitrarily named cluster names from kmeans
+km.out$cluster
+```
+
+There is no difference in results of K-means clustering on simulation data _before_ and _after_ scaling the variables--Both results contain no error in clustering.
+
+```{r}
+summary(apply(x, 2, mean))
+summary(apply(x, 2, var))
+```
+
+As shown above, there is only slight difference in statistics of variables of simulation data, therefore, we don't need to scale the variables in our case.
+
+###Excercise 11a
+```{r}
+M = read.csv("Ch10Ex11.csv", header = F)
+```
+
+###Excercise 11b
+```{r fig.width=11, fig.height=6}
+hc.complete = hclust(as.dist(1 - cor(M)), method = "complete")
+plot(hc.complete, main = "Complete Linkage", xlab = "", sub = "", cex = .9)
+hc.average = hclust(as.dist(1 - cor(M)), method = "average")
+plot(hc.average, main = "Average Linkage", xlab = "", sub = "", cex = .9)
+hc.single = hclust(as.dist(1 - cor(M)), method = "single")
+plot(hc.single, main = "Single Linkage", xlab = "", sub = "", cex = .9)
+```
+
+As shown above, the results highly depend on the type of linkage used, among which complete linkage performs best. However, clustering results obtained using complete linkage with correlation-based distance seperated the samples into two __unbalanced__ groups where half of the samples from healthy patients were incorrectly recognized as from diseased group.
+
+###Excercise 11c
+If we are interested in knowing which genes expressd differently across the two groups, we can use hierachicle clustering on transposed matrix:
+
+```{r fig.width=11, fig.height=6}
+hc.out = hclust(dist(M), method = "complete")
+plot(hc.out, main = "Complete Linkage", xlab = "", sub = "", cex = .2)
+abline(h = 15, col = "red")
+```
+
+```{r}
+cut_ret = cutree(hc.out, 2)
+ind1 = which(cut_ret == 1)
+ind2 = which(cut_ret == 2)
+labs = rep(1, 1000)
+labs[ind2] = 2
+t = data.frame(Indices = c(ind1, ind2), Cluster = labs)
+plot(t, type = "p", xlab = "Gene Index", ylim = c(0, 3), pch = 20, cex = .6, yaxt = "n") # show no non-integer breaks on y-axis
+axis(2, at = 0:3) # draw only integers on y-axis
+title("Clustering Results using Hierachicle Clustering")
+```
+
+Alternatively, since we seek the groups of genes differ the __most__ across the two groupd, we can use K-means clustering with $K = 2$:
+
+```{r}
+km.out = kmeans(M, 2, nstart = 20)
+ind1 = which(km.out$cluster == 1) # be careful with the arbitrarily named cluster names from kmeans
+ind2 = which(km.out$cluster == 2)
+labs = rep(1, 1000)
+labs[ind2] = 2
+t = data.frame(Indices = c(ind1, ind2), Cluster = labs)
+plot(t, type = "p", xlab = "Gene Index", ylim = c(0, 3), pch = 20, cex = .6, yaxt = "n")
+axis(2, at = 0:3) 
+title("Clustering Results using K-means")
+```
+
+After comparison, K-means and hierachicle clustering gave the identical results in finding out the genes which differ the most across the two groups.
+
+# References
+```{r results = "asis", echo = FALSE}
+PrintBibliography(bib, .opts = list(bib.style = "alphabetic"))
+```

@@ -1,0 +1,331 @@
+---
+title: "Chapter 2"
+output:
+  html_document:
+    toc: true
+---
+
+```` {r setup, include = FALSE, cache = FALSE}
+# library(knitr)
+# opts_chunk$set(cache=T)
+options(warn=-1)
+```
+
+## Conceptual
+__Variance__: variance refers to the amount by which   would change if we take different dataset.
+
+__Bias__: bias refers to the error that is introduced by approximating a real-life problem, which may be extremely complicated, by a much simpler model. (i.e., whether the parameters are considered sufficiently to model the real-world problem.)
+
+As a general rule, as we use more flexible methods, the variance will increase and bias will decrease.
+
+###Excercise 1a
+Better: When n is great, p is small, the model has low variance and high bias, therefore using more flexible method is more suitable. Small number of p will underfit large number of observations.
+
+###Excercise 1b
+Worse: When n is small, p is great, the model has high variance and low bias, therefore using more inflexible method is more suitable. Large number of p will overfit small number of observations.
+
+###Excercise 1c
+Better: The relationship between the predicators and response is highly non-linear, meaning we need more parameters to fit the data, i.e., to use a more flexible method.
+
+###Excercise 1d
+Nothing change: since variance of the error term indicate irreducible error.
+
+###Excercise 2a
+Regression: CEO salary is quantitative.  
+Inference: we are only interested in determining which factor(s) affect CEO salary.  
+$n = 500$, $p = 3$.
+
+###Excercise 2b
+Classification: success or failure is qualitative.  
+Prediction: we are interested to know whether it will be successful or not.  
+$n = 20$, $p = 13$.
+
+###Excercise 2c
+Regression: % change is quantitative.  
+Prediction: we are interested in predicting % change.  
+$n = 52$, $p = 3$.
+
+###Excercise 3
+```{r fig.width=6, fig.height=4,echo=FALSE}
+library(png)
+library(grid)
+img <- readPNG('Flexibility vs Error.png')
+grid.raster(img)
+# ![Flexibility vs. Error](Flexibility vs Error.png)
+```
+
+###Excercise 4a
+To predict whether next product online will be successful or not, provided that price charged for the product, marketing budget, and competition prices. The goal is for prediction.
+
+To predict whether the patches extracted from an image contains a pedestrian, provided the raw image. The goal is for prediction.
+
+To tell which factors(s) are related to duration of users, given the color scheme of websites, number of text, ranking of page, search engine used, etc.
+
+To predict whether there will be eddies around island, provided all the climate data last month. The goal is for prediction.
+
+###Excercise 4b
+To predict % change of stock return next week, given all the history of previous years. The goal is for prediction.
+
+To predict precipitation for next month, given all the precipitation data of each month in last ten years.
+
+To tell which factor(s) affect most on crime phenomena (% increase in crime records), whether it is low society welfare, low incoming of criminals, high intensity drug trafficking etc. The goal is for inference.
+
+###Excercise 4c
+Clustering location based on sales of used cars to decide which zone should be invested to a greater extent.
+
+Clustering text to help us decide categories of the given articles.
+
+Given all quantitative sizes, corresponding marketing of shirts, deciding whether we need to have a rougher measurements to sell (like X/M/L).
+
+###Excercise 5
+Advantages of using a very flexible method for regression or classification is that the parameters will better fit the training set which results in low bias, however, if the data itself is linear, more flexible method will easily overfit the data, i.e., resulting in high variance.
+
+If the data (real-life problem) is highly non-linear (complicated), then a more flexible approach should be preferred. Otherwise, if the data is linear (simple), then a less flexible approach should be chosen.
+
+###Excercise 6
+Parametric approaches make an assumption about the function form, or shape of $f$, while non-parametric approaches makes no such assumption. Instead, non-parametric methods seek an estimate of f that gets as close to the data points as possible without being too rough or wiggly.
+
+Using parametric approaches simplify the problem down to one of estimating a set of parameters which will be generally much easier to estimate. The disadvantages of it is that usually the model we choose does not match the true unknown form of $f$. In cases of estimated function form is different (even far) from the true $f$, non-parametric methods completely avoid the danger since essentially there is no assumption is made about the form of  $f$. But non-parametric approaches require a large amount of observations (far more than is typically needed for a parametric approach) to obtain an accurate estimate of $f$.
+
+###Excercise 7a
+| Obs. NO.| $X_1$  | $X_2$ | $X_3$ | $Y$ | $d(X_i,X_0)$   |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| 0  |  0 | 0  | 0 |       |    0       |
+| 1  |  0 | 3  | 0 | Red   |    3       |
+| 2  |  2 | 0  | 0 | Red   |    2       |
+| 3  |  0 | 1  | 3 | Red   | $\sqrt {10}$ |
+| 4  |  0 | 1  | 2 | Green | $\sqrt 5$  |
+| 5  | -1 | 0  | 1 | Green | $\sqrt 2$  |
+| 6  |  1 | 1  | 1 | Red   | $\sqrt 3$  |
+
+###Excercise 7b
+When $K = 1$, the nearest point is observation NO. 5, which belongs to green. Therefore, we predict test point as green.
+
+###Excercise 7c
+When $K = 3$, the nearest three point are observation NO. 2, 5, 6, which belongs to red, green, red. $\Pr (Y = {\rm{Red}} |{\rm{X}} = {{\rm{X}}_0}) = \frac{2}{3}$, $\Pr (Y = {\rm{Green}} |{\rm{X}} = {{\rm{X}}_0}) = \frac{1}{3}$, therefore, we predict test point as red.
+
+###Excercise 7b
+We would expect $K$ to be small, because as $K$ decrease ($\frac{1}{K}$ increase), the flexibility increases as well. Since fitting a highly non-linear data requires a more flexible method, so we need $K$ to be small.
+
+## Applied
+###Excercise 8a
+```{r}
+library(ISLR)
+college = College
+# fix(college) -- not applicable in R markdown
+```
+
+###Excercise 8b
+```{r}
+# rownames(college) = college[, 1] -- dataset has been updated by removing column of names
+# fix(college) -- not applicable in R markdown
+```
+
+###Excercise 8c
+```{r fig.height=7, fig.width=10}
+summary(college)
+pairs(college[, 1:10])
+```
+
+```{r}
+plot(college$Private, college$Outstate)
+
+Elite = rep("No", nrow(college))
+Elite[college$Top10perc > 50] = "Yes"
+Elite = as.factor(Elite)
+college = data.frame(college, Elite)
+plot(college$Elite, college$Outstate)
+
+par(mfrow=c(2,2))
+hist(college$Accept)
+hist(college$Enroll)
+hist(college$Grad.Rate)
+hist(college$PhD)
+```
+
+###Excercise 9a
+```{r}
+auto = Auto
+summary(auto)
+```
+
+###Excercise 9b
+```{r}
+range(auto$mpg)
+```
+
+###Excercise 9c
+```{r}
+mean(auto$mpg)
+sd(auto$mpg) # sqrt(var(auto$mpg))
+```
+
+###Excercise 9d
+```{r}
+sub_auto = auto[-(10:85), ]
+range(sub_auto$mpg)
+mean(sub_auto$mpg)
+sd(sub_auto$mpg) # sqrt(var(sub_auto$mpg))
+```
+
+###Excercise 9e
+```{r}
+# heavier car indicates more horsepower needed
+plot(auto$weight, auto$horsepower)
+# heavier car indicates less acceleration
+plot(auto$weight, auto$acceleration)
+# heavier car indicates more cylinders that may be configured
+plot(auto$weight, auto$cylinder)
+# more cynlinders results in greater displacement
+plot(auto$cylinder, auto$displacement)
+# More American autos in the dataset
+hist(auto$origin)
+boxplot(auto$origin, auto$weight)
+# American cars are heavier, Japanese cars are lighter
+boxplot(auto$weight~ auto$origin)
+```
+
+###Excercise 9f
+```{r}
+plot(auto$weight, auto$mpg)
+```
+
+Heavier car indicates less mpg.
+
+```{r}
+boxplot(auto$mpg~ auto$year)
+```
+Older cars indicate less mpg.
+
+```{r}
+plot(auto$horsepower, auto$mpg)
+```
+
+Less horsepower indicate higher mpg.
+
+```{r}
+boxplot(auto$mpg~auto$origin)
+```
+
+Japanese cars have higher mpg.
+
+###Excercise 10a
+```{r}
+library(MASS)
+boston = Boston
+attach(boston)
+names(boston)
+summary(boston)
+nrow(boston)
+```
+
+###Excercise 10b
+```{r}
+plot(boston$lstat, boston$crim)
+```
+
+Crime rate is higher in lower status population
+
+```{r}
+plot(boston$indus, boston$nox)
+```
+
+Proportion of non-retail business acres per town indicate higher nitrogen oxides concentration (parts per 10 million).
+
+```{r}
+boxplot(medv~chas)
+par(mfrow=c(1, 1))
+boxplot(crim~rad) # crim rate is high in areas near radial highways
+```
+
+Properties near river has higher values
+
+```{r}
+boxplot(zn~rad)  
+```
+
+Proportion of residential land zoned for lots over 25,000 sq.ft. is high in suburb.
+
+```{r}
+boxplot(nox~rad) 
+```
+
+Nitrogen oxides concentration is high in areas near radial highways.
+
+```{r}
+boxplot(dis~rad) 
+```
+
+Distances to employment centers are smallest in areas near radial highways.
+
+```{r}
+boxplot(tax~rad) 
+```
+
+Tax value is high for properties in areas near radial highways.
+
+```{r}
+boxplot(ptratio~rad) 
+```
+
+Ratio of pupil teacher is low in suburb.
+
+```{r}
+boxplot(medv~rad) 
+```
+
+Median value of owner-occupied homes is low in areas near radial highways.
+
+```{r}
+boxplot(black~rad) 
+```
+
+Proportion of blacks varies greatly in areas near radial highways.
+
+###Excercise 10c
+```{r}
+par(mfrow=c(2,3))
+plot(boston$lstat, boston$crim)
+plot(boston$medv, boston$crim)
+plot(boston$tax, boston$crim)
+boxplot(crim~rad)
+plot(boston$age, boston$crim)
+plot(boston$zn, boston$crim)
+par(mfrow=c(1,1))
+```
+
+###Excercise 10d
+```{r}
+hist(boston$crim[Boston$crim>1], breaks=25)
+plot(ptratio, crim) # Higher pupil:teacher ratio, more crime
+boxplot(crim~rad) # Higher index of accessibility to radial highways, more crime
+plot(boston$tax, boston$crim) # Higher tax rate, more crime
+plot(boston$dis, boston$crim) # Closer to work-area, more crime
+plot(boston$age, boston$crim) # Older homes, more crime
+range(ptratio)
+range(rad)
+range(tax)
+```
+
+###Excercise 10e
+```{r}
+sum(chas, na.rm=TRUE)
+```
+
+###Excercise 10f
+```{r}
+median(ptratio)
+```
+
+###Excercise 10g
+```{r}
+t(subset(Boston, medv == min(medv)))
+```
+
+###Excercise 10h
+```{r}
+sum(rm > 7, na.rm=TRUE)
+summary(subset(Boston, rm > 7))
+sum(rm > 8, na.rm=TRUE)
+summary(subset(Boston, rm > 8))
+```

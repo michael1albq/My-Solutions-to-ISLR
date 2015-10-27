@@ -1,0 +1,494 @@
+---
+title: "Chapter 5"
+output:
+  html_document:
+    toc: true
+---
+
+```` {r  setup, include = FALSE}
+library(knitr)
+opts_chunk$set(cache=T)
+```
+
+##Conceptual
+###Excercise 1
+We want to minimize
+$$
+\begin{array}{l}
+{\rm{Var}}(\alpha X + (1 - \alpha )Y)\\
+ = {\rm{Var}}(\alpha X) + {\rm{Var(}}(1 - \alpha )Y) + 2{\rm{Cov}}(\alpha X,(1 - \alpha )Y)\\
+ = {\alpha ^2}{\rm{Var}}(X) + {(1 - \alpha )^2}{\rm{Var(}}Y) + 2\alpha (1 - \alpha ){\rm{Cov}}(X,Y)\\
+ = {\alpha ^2}\sigma _X^2 + {(1 - \alpha )^2}\sigma _Y^2 + 2(\alpha  - {\alpha ^2}){\sigma _{XY}}
+\end{array}
+$$
+Take the first derivative to find the critical point:
+$$
+\begin{array}{l}
+\frac{d}{{{d_\alpha }}}f(\alpha ) = 0\\
+2\sigma _X^2\alpha  - 2\sigma _Y^2(1 - \alpha ) + 2{\sigma _{XY}}( - 2\alpha  + 1) = 0\\
+\alpha \sigma _X^2 + \alpha \sigma _Y^2 - \sigma _Y^2 - 2\alpha {\sigma _{XY}} + {\sigma _{XY}} = 0\\
+\alpha (\sigma _X^2 + \sigma _Y^2 - 2{\sigma _{XY}}) = \sigma _Y^2 - {\sigma _{XY}}
+\end{array}
+$$
+Therefore, we have
+$$
+\alpha  = \frac{{{\sigma _{XY}} - \sigma _Y^2}}{{\sigma _X^2 + \sigma _Y^2 - 2{\sigma _{XY}}}}
+$$
+
+###Excercise 2a
+$$
+\Pr ({x_1} \ne {x_j}|{x_1}) = \frac{1}{n}\sum\nolimits_{j = 1}^n {I({x_1} \ne {x_j})}  = \frac{{n - 1}}{n}
+$$
+
+###Excercise 2b
+$$
+\Pr ({x_2} \ne {x_j}|{x_2}) = \frac{1}{n}\sum\nolimits_{j = 1}^n {I({x_2} \ne {x_j})}  = \frac{{n - 1}}{n}
+$$
+
+###Excercise 2c
+The probability that _j_ th observation is not in the bootstrap sample is equivalent to the probability of drawing $n$ times, with each time the observation was not the _j_ th observation.
+
+Each of the $n$ observations was drawn with probability of $\frac{{n - 1}}{n}$ if it was not the _j_ th observation from the original sample. Its _n_ th power indicates that we have drawn _n_ such bootstrap samples, therefore we have
+$$
+\Pr (x \ne {x_j}|x) = {(\frac{{n - 1}}{n})^n}
+$$
+
+###Excercise 2d
+Substituting $n = 5$ to above equation, we have
+$$\Pr (x \ne {x_j}|x) = {(\frac{{5 - 1}}{5})^5} \approx 0.33$$
+Therefore, the probability that the _j_ th observation is in the bootstrap sample is
+$$1 - \Pr (x \ne {x_j}|x) = 1 - 0.33 = 0.67$$
+
+###Excercise 2e
+Substituting $n = 100$ to above equation, we have
+$$\Pr (x \ne {x_j}|x) = {(\frac{{100 - 1}}{{100}})^{100}} \approx 0.37$$
+Therefore, the probability that the _j_ th observation is in the bootstrap sample is
+$$1 - \Pr (x \ne {x_j}|x) = 1 - 0.37 = 0.63$$
+
+###Excercise 2f
+Substituting $n = 10000$ to above equation, we have
+$$\Pr (x \ne {x_j}|x) = {(\frac{{10000 - 1}}{{10000}})^{10000}} \approx 0.37$$
+Therefore, the probability that the _j_ th observation is in the bootstrap sample is
+$$1 - \Pr (x \ne {x_j}|x) = 1 - 0.37 = 0.63$$
+
+###Excercise 2g
+```{r}
+probs = rep(0, 1e+05)
+for ( n in 1:1e+05) {
+  probs[n] = 1 - ((n-1)/n)^n
+}
+plot(1:1e+05, probs, xlab = "n", ylab = "Probability of jth observation in bootstrap sample")
+```
+
+After $n = 100$, the probability of jth observation in bootstrap sample remains approximately 0.63 and doesn't change as the n increases.
+
+###Excercise 2h
+```{r}
+store = rep(NA, 1e+4)
+for ( i in 1:1e+4) {
+  store[i] = sum(sample(1:100, rep = T) == 4) > 0
+}
+mean(store)
+```
+
+The result obtained above indicates that the probability of _n bootstrap samples_ of size 100 which contain _j_ th observation is equivalent to the probability of _one bootstrap sample_ of size n that contains _j_ th observation.
+
+###Excercise 3a
+K-fold cross-validation is implemented by averaging the perfomance of k measurements, each of which uses $(k-1)/k$ data as training set and $1/k$ data as validation set from the randomly shuffled samples. After splitting the randomly shuffled samples into k non-overlapping groups, group of validation set is chosen sequentially for each of the k measurements.
+
+###Excercise 3b
+i. K-fold cross-validation shows the advantage of unbiased evaluation comparing to the validation set approach (since validation set apparoach uses only half of the original samples as training set), provided that K is 5 or 10 rather than close to n.
+
+ii. Leave-one-out cross-validation (LOOCV) shows more unbaised result, however will suffer from high-variance of the model compraing to the K-fold cross-validation. 
+
+###Excercise 4
+1. Sample with replacement on the entire dataet.  
+2. Fit the sample with our statistical learning method.  
+3. Predict given a particular value of $X$ and store the prediction value into an array `predictions`.
+4. Repeat (1)-(3) for many times (like 10,000), for each time, we store the prediction value into `predictions`.
+4. In order to assess the spread degree of predictions, calculate standard deviation by `std(predictions)`.
+
+-----------------------------------------
+
+##Applied
+###Excercise 5a
+```{r}
+library(ISLR)
+attach(Default)
+glm.fit = glm(default~income+balance, data = Default, family=binomial)
+summary(glm.fit)
+```
+
+###Excercise 5b
+i. 
+```{r}
+set.seed(1)
+train_ind = sample(nrow(Default), nrow(Default) / 2, replace = T)
+train = rep(F, nrow(Default))
+train[train_ind] = T
+test.X = Default[-train_ind, ]
+test.Y = default[!train]
+```
+
+ii. 
+```{r}
+glm.fit = glm(default~income+balance, subset = train, family = binomial)
+summary(glm.fit)
+```
+
+iii. 
+```{r}
+glm.probs = predict(glm.fit, test.X, type = "response")
+contrasts(default)
+glm.pred = rep("No", length(glm.probs))
+glm.pred[glm.probs > .5] = "Yes"
+```
+
+iv. 
+```{r}
+table(glm.pred, test.Y)
+mean(glm.pred != test.Y)
+```
+
+###Excercise 5c
+```{r}
+train_ind = sample(nrow(Default), nrow(Default) / 2, replace = T)
+train = rep(F, nrow(Default))
+train[train_ind] = T
+test.X = Default[-train_ind, ]
+test.Y = default[!train]
+glm.fit = glm(default~income+balance, subset = train, family = binomial)
+glm.probs = predict(glm.fit, test.X, type = "response")
+glm.pred = rep("No", length(glm.probs))
+glm.pred[glm.probs > .5] = "Yes"
+summary(glm.fit)
+mean(glm.pred != test.Y)
+```
+
+```{r}
+train_ind = sample(nrow(Default), nrow(Default) / 2, replace = T)
+train = rep(F, nrow(Default))
+train[train_ind] = T
+test.X = Default[-train_ind, ]
+test.Y = default[!train]
+glm.fit = glm(default~income+balance, subset = train, family = binomial)
+glm.probs = predict(glm.fit, test.X, type = "response")
+glm.pred = rep("No", length(glm.probs))
+glm.pred[glm.probs > .5] = "Yes"
+summary(glm.fit)
+mean(glm.pred != test.Y)
+```
+
+```{r}
+train_ind = sample(nrow(Default), nrow(Default) / 2, replace = T)
+train = rep(F, nrow(Default))
+train[train_ind] = T
+test.X = Default[-train_ind, ]
+test.Y = default[!train]
+glm.fit = glm(default~income+balance, subset = train, family = binomial)
+glm.probs = predict(glm.fit, test.X, type = "response")
+glm.pred = rep("No", length(glm.probs))
+glm.pred[glm.probs > .5] = "Yes"
+summary(glm.fit)
+mean(glm.pred != test.Y)
+```
+
+For all three iterations, the validation set error are almost identical.
+
+###Excercise 5d
+```{r}
+train_ind = sample(nrow(Default), nrow(Default) / 2, replace = T)
+train = rep(F, nrow(Default))
+train[train_ind] = T
+test.X = Default[-train_ind, ]
+test.Y = default[!train]
+glm.fit = glm(default~income+balance+student, subset = train, family = binomial)
+glm.probs = predict(glm.fit, test.X, type = "response")
+glm.pred = rep("No", length(glm.probs))
+glm.pred[glm.probs > .5] = "Yes"
+summary(glm.fit)
+mean(glm.pred != test.Y)
+```
+
+No, including dummy variable _student_ doesn't lead to a reduction in the test error rate.
+
+###Excercise 6a
+```{r}
+glm.fit = glm(default~income+balance, family = binomial)
+summary(glm.fit)$coef
+```
+
+###Excercise 6b
+```{r}
+boot.fn = function(data, index) {
+  coefficients(glm(default~income+balance, data = data, subset = index, family = binomial))
+}
+```
+
+###Excercise 6c
+```{r}
+library(boot)
+set.seed(1)
+boot(Default, boot.fn, 1000)
+```
+
+###Excercise 6d
+The estimated standard errors obtained using the glm() function are almost identical to the results using bootstrap function.
+
+```{r}
+# clean up
+rm(list = ls())
+```
+
+###Excercise 7a
+```{r}
+library(ISLR)
+attach(Weekly)
+glm.fit = glm(Direction~Lag1+Lag2, family = binomial)
+summary(glm.fit)$coef
+```
+
+###Excercise 7b
+```{r}
+glm.fit = glm(Direction~Lag1+Lag2, subset = 2:nrow(Weekly), family = binomial)
+summary(glm.fit)$coef
+```
+
+###Excercise 7c
+```{r}
+prob = predict(glm.fit, Weekly[1, ], type = "response")
+contrasts(Direction)
+pred = "Down"
+if (prob > .5) pred = "Up"
+if (pred == Direction[1] ) {
+  print("Correct prediction")
+} else {
+  print("Incorrect prediction")
+}
+```
+
+###Excercise 7d
+i. 
+```{r}
+glm.probs = rep(NA, nrow(Weekly))
+for ( i in 1:nrow(Weekly) ) {
+  glm.fit = glm(Direction~Lag1+Lag2, subset = (1:nrow(Weekly))[-i], family = binomial)
+  glm.probs[i] = predict(glm.fit, Weekly[i, ], type = "response")
+}
+```
+
+###Excercise 7e
+```{r}
+glm.pred = rep("Down", nrow(Weekly))
+glm.pred[glm.probs > .5] = "Up"
+table(glm.pred, Direction)
+mean(glm.pred != Direction)
+```
+
+###Excercise 8a
+```{r}
+set.seed(1)
+y = rnorm(100) # non-sense
+x = rnorm(100)
+y = x - 2 * x^2 + rnorm(100)
+```
+
+$n = 100$ and $p = 2$.
+The equation form:
+$$y = {\beta _0} + {\beta _1}{x_1} + {\beta _2}{x_2} + {\sigma ^2}$$
+Here
+$$
+\begin{array}{l}
+{\beta _0} = 0\\
+{\beta _1} = 1,{x_1} = x\\
+{\beta _2} =  - 2,{x_2} = {x^2}\\
+{\sigma ^2} \sim  N(0,1)
+\end{array}
+$$
+i.e, 
+$$y = x - 2{x^2} + {\sigma ^2}$$
+
+###Excercise 8b
+```{r}
+plot(y ~ x)
+j = order(x)
+lo = loess(y ~ x)
+lines(x[j], predict(lo)[j], col = 'red', lwd = 2)
+```
+
+A parabola curve was fitted with added noise.
+
+###Excercise 8c
+```{r}
+library(boot)
+set.seed(1)
+x = rnorm(100)
+y = x - 2 * x^2 + rnorm(100)
+```
+
+i. 
+```{r}
+glm.fit = glm(y ~ x)
+cv.err = cv.glm(data.frame(x, y), glm.fit)
+cv.err$delta
+```
+
+ii. 
+```{r}
+glm.fit = glm(y ~ poly(x, 2))
+cv.err = cv.glm(data.frame(x, y), glm.fit)
+cv.err$delta
+```
+
+iii. 
+```{r}
+glm.fit = glm(y ~ poly(x, 3))
+cv.err = cv.glm(data.frame(x, y), glm.fit)
+cv.err$delta
+```
+
+iv. 
+```{r}
+glm.fit = glm(y ~ poly(x, 4))
+cv.err = cv.glm(data.frame(x, y), glm.fit)
+cv.err$delta
+```
+
+###Excercise 8d
+```{r}
+set.seed(2)
+x = rnorm(100)
+y = x - 2 * x^2 + rnorm(100)
+cv.error = rep(0, 5)
+for ( i in 1:5 ) {
+  glm.fit = glm(y ~ poly(x, i))
+  cv.error[i] = cv.glm(data.frame(x, y), glm.fit)$delta[1]
+}
+cv.error
+```
+
+The results comparing to _8(c)_ are not the same, because using different seed results in different data of $X$ and $Y$.
+
+###Excercise 8e
+The second model in _8(c)_ had the smallest LOOCV error.
+
+Yes, the results were obtained in expectation because the true relationship of $X$ and $Y$ are quadratic.
+
+###Excercise 8f
+```{r}
+set.seed(1)
+x = rnorm(100)
+y = x - 2 * x^2 + rnorm(100)
+cv.error = rep(0, 5)
+for ( i in 1:5 ) {
+  glm.fit = glm(y ~ poly(x, i))
+  print(summary(glm.fit))
+  cv.error[i] = cv.glm(data.frame(x, y), glm.fit)$delta[1]
+}
+cv.error
+```
+
+The statistical significance of the coefficient estimates are in accordance with the true relationship between $Y$ and $X$. Since true relationship between $Y$ and $X$ is quadratic, model fitted using higher order (> 2) polynomial of $X$ shows high p-value for the corresponding coefficient estimate, meaning they are not statistically significant.
+
+```{r}
+# clean up
+rm(list = ls())
+```
+
+###Excercise 9a
+```{r}
+library(MASS)
+attach(Boston)
+library(boot)
+summary(medv)
+mean(medv)
+```
+
+###Excercise 9b
+```{r}
+std_error = sd(medv) / sqrt(length(medv))
+std_error
+```
+
+###Excercise 9c
+```{r}
+boot.fn = function(data, index) {
+  return(mean(data[index]))
+}
+set.seed(1)
+boot(medv, boot.fn, 10000)
+```
+
+The result obtained using Bootstrap is just 0.004 less than the result in _9b_ (0.405 vs. 0.409).
+
+```{r}
+means = rep(0, 10000)
+for ( i in 1:10000 ) {
+  means[i] = mean(sample(medv, length(medv), replace = T))
+}
+sd(means)
+```
+
+The result obtained using Bootstrap is just 0.002 bigger than the result in _9b_ (0.411 vs. 0.409).
+
+###Excercise 9d
+```{r}
+conf_low = mean(medv) - 1.96 * sd(means)
+conf_high = mean(medv) + 1.96 * sd(means)
+sprintf("%f %f", conf_low, conf_high)
+t.test(medv)$conf.int
+```
+
+The confidence interval obtained using t-test is just 0.002 wider than does the one obtained using Bootstrap.
+
+###Excercise 9e
+```{r}
+median(medv)
+```
+
+###Excercise 9f
+```{r}
+boot.fn = function(data, index) {
+  return(median(data[index]))
+}
+boot(medv, boot.fn, 10000)
+```
+
+Median of 21.2 with SE of 0.375. The SE is small relative to the mean of Bootstrapped medians.
+
+```{r}
+medians = rep(0, 10000)
+for ( i in 1:10000 ) {
+  medians[i] = median(sample(medv, length(medv), replace = T))
+}
+mean(medians)
+sd(medians)
+```
+
+Median of 21.18 with SE of 0.381. The SE is small relative to the mean of Bootstrapped medians.
+
+###Excercise 9g
+```{r}
+quantile(medv, 0.1)
+```
+
+###Excercise 9h
+```{r}
+boot.fn = function(data, index) {
+  return(quantile(data[index], 0.1))
+}
+boot(medv, boot.fn, 10000)
+```
+
+Tenth-percentile of 12.75 with SE of 0.507. The SE is small relative to the mean of Bootstrapped tenth-percentiles.
+
+```{r}
+quantiles = rep(0, 10000)
+for ( i in 1:10000 ) {
+  quantiles[i] = quantile(sample(medv, length(medv), replace = T), 0.1)
+}
+mean(quantiles)
+sd(quantiles)
+```
+
+Tenth-percentile of 12.76 with SE of 0.505. The SE is small relative to the mean of Bootstrapped tenth-percentiles.

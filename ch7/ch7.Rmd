@@ -1,0 +1,725 @@
+---
+title: "Chapter 7"
+output:
+  html_document:
+    toc: true
+---
+
+```` {r setup, include = FALSE, cache = FALSE}
+# library(knitr)
+# opts_chunk$set(cache=T)
+options(warn=-1)
+```
+
+##Conceptual
+###Excercise 1a
+When there is only one knot and for all $x \le \xi$, ${f_1}(x) = {a_1} + {b_1}x + {c_1}{x^2} + {d_1}{x^3}$ can be transformed into 
+$$
+f(x) = {\beta _0} + {\beta _1}x + {\beta _2}{x^2} + {\beta _3}{x^3}
+$$
+when 
+$$
+{a_1} = {\beta _0},{b_1} = {\beta _1},{c_1} = {\beta _2},{d_1} = {\beta _3}
+$$
+
+###Excercise 1b
+For all $x > \xi$, 
+$$
+\begin{array}{l}
+f(x) &=& {\beta _0} + {\beta _1}x + {\beta _2}{x^2} + {\beta _3}{x^3} + {\beta _4}{(x - \xi )^3}\\
+&=& {\beta _0} + {\beta _1}x + {\beta _2}{x^2} + {\beta _3}{x^3} + {\beta _4}({x^3} + 3{\xi ^2}x - 3\xi {x^2} - {\xi ^3})\\
+&=& {\beta _0} + {\beta _1}x + {\beta _2}{x^2} + {\beta _3}{x^3} + {\beta _4}{x^3} + 3{\xi ^2}{\beta _4}x - 3\xi {\beta _4}{x^2} - {\xi ^3}{\beta _4}\\
+&=& {\beta _0} - {\xi ^3}{\beta _4} + ({\beta _1} + 3{\xi ^2}{\beta _4})x + ({\beta _2} - 3\xi {\beta _4}){x^2} + ({\beta _3} + {\beta _4}){x^3}
+\end{array}
+$$
+Therefore, above equation can be transformed from ${f_2}(x) = {a_2} + {b_2}x + {c_2}{x^2} + {d_2}{x^3}$, when
+$$
+{a_2} = {\beta _0} - {\xi ^3}{\beta _4},{b_2} = {\beta _1} + 3{\xi ^2}{\beta _4},{c_2} = {\beta _2} - 3\xi {\beta _4},{d_2} = {\beta _3} + {\beta _4}
+$$
+
+###Excercise 1c
+When $x = \xi$, we have the form of ${f_2}(\xi)$:
+$$
+\begin{array}{l}
+{f_2}(\xi) &=& {\beta _0} - {\xi ^3}{\beta _4} + ({\beta _1} + 3{\xi ^2}{\beta _4})\xi  + ({\beta _2} - 3\xi {\beta _4}){\xi ^2} + ({\beta _3} + {\beta _4}){\xi ^3}\\
+ &=& {\beta _0} - {\xi ^3}{\beta _4} + {\beta _1}\xi  + 3{\xi ^3}{\beta _4} + {\beta _2}{\xi ^2} - 3{\xi ^3}{\beta _4} + {\beta _3}{\xi ^3} + {\beta _4}{\xi ^3}\\
+ &=& {\beta _0} + {\beta _1}\xi  + {\beta _2}{\xi ^2} + {\beta _3}{\xi ^3}\\
+ &=& {f_1}(\xi)
+\end{array}
+$$
+
+###Excercise 1d
+When $x = \xi$, we have the form of ${{f'}_1}(x)$:
+$$
+\begin{array}{l}
+{{f'}_1}(x) &=& {\beta _1} + 2{\beta _2}x + 3{\beta _3}{x^2}\\
+{{f'}_1}(\xi ) &=& {\beta _1} + 2{\beta _2}\xi  + 3{\beta _3}{\xi ^2} 
+\end{array}
+$$
+and the form of ${{f'}_2}(x)$:
+$$
+\begin{array}{l}
+{{f'}_2}(x) &=& {\beta _1} + 3{\xi ^2}{\beta _4} + 2({\beta _2} - 3\xi {\beta _4})x + 3({\beta _3} + {\beta _4}){x^2}\\
+ &=& {\beta _1} + 3{\xi ^2}{\beta _4} + 2{\beta _2}x - 6\xi {\beta _4}x + 3{\beta _3}{x^2} + 3{\beta _4}{x^2}\\
+{{f'}_2}(\xi ) &=& {\beta _1} + 2{\beta _2}\xi  + 3{\beta _4}{\xi ^2} - 6{\beta _4}{\xi ^2} + 3{\beta _3}{\xi ^2} + 3{\beta _4}{\xi ^2}\\
+ &=& {\beta _1} + 2{\beta _2}\xi  + (3{\beta _4} - 6{\beta _4} + 3{\beta _3} + 3{\beta _4}){\xi ^2}\\
+ &=& {\beta _1} + 2{\beta _2}\xi  + 3{\beta _3}{\xi ^2}
+\end{array}
+$$
+Therefore, ${{f'}_1}(\xi ) = {{f'}_2}(\xi )$.
+
+###Excercise 1e
+We will take the derivatives of ${f_1}(x)$ with the form of $a_1, b_1, c_1$, and $d_1$ for simplicity:
+$$
+\begin{array}{l}
+{f_1}(x) = {a_1} + {b_1}x + {c_1}{x^2} + {d_1}{x^3}\\
+{{f'}_1}(x) = {b_1} + 2{c_1}x + 3{d_1}{x^2}\\
+{{f''}_1}(x) = 2{c_1} + 6{d_1}x
+\end{array}
+$$
+By substituting ${c_1} = {\beta _2}$and ${d_1} = {\beta _3}$ into above equation with $x = \xi$:
+$$
+{{f''}_1}(\xi) = 2{\beta _2} + 6{\beta _3}\xi 
+$$
+Similarily, 
+$$
+{{f''}_2}(x) = 2{c_2} + 6{d_2}x
+$$
+Again, by substituting ${c_2} = {\beta _2} - 3\xi {\beta _4}$ and ${d_2} = {\beta _3} + {\beta _4}$ into above equation with $x = \xi$, we have:
+$$
+\begin{array}{l}
+{{f''}_2}(\xi) &=& 2{\beta _2} - 6\xi {\beta _4} + 6({\beta _3} + {\beta _4})\xi\\
+ &=& 2{\beta _2} + 6{\beta _3}\xi 
+\end{array}
+$$
+
+Therefore, we have ${{f''}_1}(\xi ) = {{f''}_2}(\xi )$.
+
+###Excercise 2a
+${g^0}(x) = g(x)$ and the $\hat g$ will minimize over the sum of $y_i$.
+
+###Excercise 2b
+Since the sum of slopes of $g(x)$ supressed to zero, $\hat g$ will be ${\rm E}(y)$ (mean of $y$): a horizontal line parallel to x axis.
+
+###Excercise 2c
+Since the total change of slope of $g(x)$ is supressed to zero, $\hat g$ will be a straight line that passes as closely as possible to the training points (i.e. a linear squares line).
+
+###Excercise 2d
+The sum of rate of change of slop for $g(x)$ will be supressed to zero. Since the third derivative doesn't give a lot of information about the function itself, therefore supressing third derivative will not help/deteriorate in choosing $\hat g$ along with minimization of RSS. Thus, this formula amounts to the linear regression choosing $\hat g$ based on minimizing RSS.
+
+###Excercise 2e
+The penalty term doesn't matter, and this formula amounts to the linear regression choosing $\hat g$ based on minimizing RSS.
+
+###Excercise 3
+Substituting ${\hat \beta _0} = 1, {\hat \beta _1} = 1$ and ${\hat \beta _2} = -2$, we have:
+$$
+\begin{array}{*{20}{l}}
+{Y = {\beta _0} + {\beta _1}{b_1}(X) + {\beta _2}{b_2}(X) + \varepsilon }\\
+{\hat Y = 1 + X - 2{{(X - 1)}^2}I(X \ge 1)}\\
+{ = \left\{ {\begin{array}{*{20}{l}}
+{1 + X,X < 1}\\
+{ - 1 + 5X - 2{X^2},X \ge 1}
+\end{array}} \right.}
+\end{array}
+$$
+
+```{r}
+x_l = seq(-2, 1, length.out = 75)
+y_l = 1 + x_l
+x_r = seq(1, 2, length.out = 25)
+y_r = -1 + 5*x_r - 2*x_r^2
+plot(c(x_l[-75], x_r), c(y_l[-75], y_r), type = "l", col = "blue", lwd = 2, xlab = "X", ylab = "Y")
+points(0, 1,  col = "red", cex = 2, pch = 20)
+```
+
+The intercept is 1 (shown in red dot), slope is 1 when $X < 1$ while when $x \ge 1$, slope is $5 - 10X$.
+
+###Excercise 4
+$$
+\begin{array}{l}
+Y &=& {\beta _0} + {\beta _1}{b_1}(X) + {\beta _2}{b_2}(X) + \varepsilon \\
+ &=& {\beta _0} + {\beta _1}(I(0 \le X \le 2) - (X - 1)I(1 \le X \le 2)) + {\beta _2}((X - 1)I(3 \le X \le 4) + I(4 < X \le 5)) + \varepsilon \\
+\hat Y &=& \left\{ \begin{array}{l}
+1,X < 0,2 < X < 3,5 < X\\
+2,0 \le X < 1\\
+3 - X,1 \le X \le 2\\
+3X - 2,3 \le X \le 4\\
+4,4 < X \le 5
+\end{array} \right.
+\end{array}
+$$
+
+```{r}
+x_1 = seq(-2, 0, length.out = 20)[-20]; y_1 = rep(1, length(x_1))
+x_2 = seq(0, 1, length.out = 10)[-10]; y_2 = rep(2, length(x_2))
+x_3 = seq(1, 2, length.out = 10); y_3 = 3 - x_3
+plot(c(x_1, x_2, x_3), c(y_1, y_2, y_3), type = "l", col = "blue", lwd = 2, xlab = "X", ylab = "Y")
+points(0, 2,  col = "red", cex = 2, pch = 20)
+```
+
+The intercept is 2. Slope is 0 when $-2 \le X < 1$ while when $1 \le X \le 2$, slope is -1.
+
+###Excercise 5a
+As using higher order of derivative (i.e. spending more degrees of freedom) on penalty function decreases the bias, therefore when $\lambda \to \infty$, $\hat g_2$ will have smaller training RSS comparing to $\hat g_1$.
+
+###Excercise 5b
+Using higher order of derivative brings less information on the function itself, thus there exists a certain point where the decrease in bias cannot compensate the increase in variance. When $\lambda \to \infty$, the increase in variance using higher order of derivative is more than the decrease in bias,  therefore $\hat g_1$ will have smaller test RSS comparing to $\hat g_2$.
+
+###Excercise 5c
+When $\lambda = 0$, both models amount to the linear squares, regardless of which order of derivative was used in minimizing $\hat g$. Therefore, $\hat g_1$ will have the same training and test RSS comparing to $\hat g_2$.
+
+---------------------------------------
+
+##Applied
+###Excercise 6a
+Using ANOVA for hypothesis testing:
+
+```{r}
+library(ISLR)
+attach(Wage)
+fit.1 = lm(wage~age, data = Wage)
+coef(summary(fit.1))
+fit.2 = lm(wage~poly(age, 2), data = Wage)
+coef(summary(fit.2))
+fit.3 = lm(wage~poly(age, 3), data = Wage)
+coef(summary(fit.3))
+fit.4 = lm(wage~poly(age, 4), data = Wage)
+coef(summary(fit.4))
+fit.5 = lm(wage~poly(age, 5), data = Wage)
+coef(summary(fit.5))
+anova(fit.1, fit.2, fit.3, fit.4, fit.5)
+```
+
+Using cross-validation to pick up the best number of degree:
+```{r}
+set.seed(1)
+k = 10; p = 10
+folds = sample(1:k, length(age), replace = T)
+colnames = c()
+for( i in 1:p ) colnames[i] = sprintf("Poly%s", i)
+cv.erros = matrix(NA, k, p, dimnames = list(NULL, colnames))
+for ( i in 1:k ) {
+  for ( j in 1:p ) {
+    fit = lm(wage ~ poly(age, j), subset = (folds != i))
+    preds = predict(fit, newdata = Wage[folds == i, ])
+    cv.erros[i, j] = mean((preds - wage[folds == i])^2)
+  }
+}
+cv.erros = apply(cv.erros, 2, mean)
+plot(seq_len(p), cv.erros, type = "l", lwd = 2, col = "blue", xlab = "Degree of Polynomial", ylab = "Test Error")
+title(sprintf("Cross-validation with K = %d", k))
+points(which.min(cv.erros), min(cv.erros), col = "red", cex = 2, pch = 20)
+```
+
+Or we can use build-in library to finish the task of cross-validation:
+```{r}
+library(boot)
+cv.error.10 = rep(0, 10)
+for ( i in 1:10 ) {
+  fit = glm(wage ~ poly(age, i), data = Wage)
+  cv.error.10[i] = cv.glm(Wage, fit, K = 10)$delta[1]
+}
+plot(cv.error.10, type = "l", lwd = 2, col = "blue", xlab = "Degree of Polynomial", ylab = "Test Error")
+title("Cross-validation with K = 10")
+points(which.min(cv.error.10), min(cv.error.10), col = "red", cex = 2, pch = 20)
+```
+
+The results of hypothesis testing using ANOVA is the same with the results using cross-validation (our implementation from scratch shows that $K = 9$ is the best choice, however, since we have observed that the test error were only slightly different after degree 4, we would prefer the less flexible model since it has less variance), i.e., degree of 4 shoule be chosen in the resulting polynomial.
+
+```{r}
+fit = lm(wage~poly(age, 4), data = Wage)
+agelims = range(age)
+age.grid = seq(from = agelims[1], to = agelims[2])
+preds = predict(fit, newdata = list(age = age.grid), se = T)
+se.bands = cbind(preds$fit + 2*preds$se.fit, preds$fit - 2*preds$se.fit)
+plot(age, wage, xlim = agelims, cex = .5, col = "darkgrey")
+title("Degree-4 Polynomial", outer = F)
+lines(age.grid, preds$fit, lwd = 2, col = "blue")
+matlines(age.grid, se.bands, lwd = 1, col = "blue", lty = 3)
+```
+
+###Excercise 6b
+```{r}
+set.seed(1)
+all.cvs = rep(NA, 10)
+for ( i in 2:10 ) {
+  Wage$age.cut = cut(age, i)
+  fit = glm(wage ~ age.cut, data = Wage)
+  all.cvs[i] = cv.glm(Wage, fit, K = 10)$delta[1] # In CV, cut results must be stored into matrix Wage (X)
+}
+plot(seq(2, 10), all.cvs[-1], type = "l", lwd = 2, col = "blue", xlab = "Number of Cut", ylab = "Validation Error")
+title("Cross-validation Results using K = 10")
+points(which.min(all.cvs[-1]) + 1, min(all.cvs[-1]), col = "red", cex = 2, pch = 20)
+table(cut(age, which.min(all.cvs[-1]) + 1))
+```
+
+```{r}
+fit = lm(wage~cut(age, which.min(all.cvs[-1])+1), data = Wage)
+preds = predict(fit, newdata = list(age = age.grid), se = T)
+se.bands = cbind(preds$fit + 2*preds$se.fit, preds$fit - 2*preds$se.fit)
+plot(age, wage, xlim = agelims, cex = .5, col = "darkgrey")
+title(sprintf("%d-Cut Piecewise Regression", which.min(all.cvs[-1])+1), outer = F)
+lines(age.grid, preds$fit, lwd = 2, col = "blue")
+matlines(age.grid, se.bands, lwd = 1, col = "blue", lty = 3)
+# clean up
+rm(list = ls())
+```
+
+###Excercise 7
+```{r fig.height=7, fig.width=10}
+library(splines)
+library(gam)
+par(mfrow = c(2,4))
+names(Wage)
+gam.fit = gam(wage ~ s(year, df = 7) + lo(age, span = 0.7) + lo(year, age, span = 0.5) + education + jobclass + maritl + health_ins + race, data = Wage)
+plot.gam(gam.fit, se = T, col = "green")
+gam.m1 = gam(wage ~ lo(age, span = 0.7) + lo(year, age, span = 0.5) + education + jobclass + maritl + health_ins + race, data = Wage)
+gam.m2 = gam(wage ~ year + lo(age, span = 0.7) + lo(year, age, span = 0.5) + education + jobclass + maritl + health_ins + race, data = Wage)
+gam.m3 = gam(wage ~ s(year, df = 7) + lo(age, span = 0.7) + lo(year, age, span = 0.5) + education + jobclass + maritl + health_ins + race, data = Wage)
+anova(gam.m1, gam.m2, gam.m3)
+gam.m1 = gam(wage ~ lo(year, age, span = 0.5) + education + jobclass + maritl + health_ins + race, data = Wage)
+gam.m2 = gam(wage ~ age + lo(age, span = 0.7) + lo(year, age, span = 0.5) + education + jobclass + maritl + health_ins + race, data = Wage)
+gam.m3 = gam(wage ~ lo(age, span = 0.7) + lo(year, age, span = 0.5) + education + jobclass + maritl + health_ins + race, data = Wage)
+anova(gam.m1, gam.m2, gam.m3)
+detach(Wage)
+```
+
+It is obvious that _age_ has non-linear relationship with _wage_. Besides, there are sufficient evidences that _wage_ differs given different qualitative predictors including _education_, _jobclass_, _maritl_, *health_ins* and _race_. We also discovered that _year_ has an interaction effect with _age_ therefore we don't have to add individual basis functions for _year_ and _age_ (instead using a local regression on the interaction term of _year_ and _age_ is sufficient), which are in accord with the results of ANOVA. 
+
+###Excercise 8
+```{r fig.height=7, fig.width=10}
+rm(list = ls())
+attach(Auto)
+pairs(Auto)
+gam.fit = gam(mpg ~ year + origin + cylinders + s(acceleration, 5) + s(displacement, 5) + s(weight, 5) + s(horsepower, 5), data = Auto)
+par(mfrow = c(2,4))
+plot.gam(gam.fit, se = T, col = "green")
+detach(Auto)
+par(mfrow = c(1,1))
+```
+
+Above figures indicate that predictors including _horsepower_, _weight_, _displacement_ and _acceleration_ show non-linear relationship with _mpg_, which can be visually confirmed with plots in `pairs(Auto)`.
+
+###Excercise 9a
+```{r}
+library(MASS)
+attach(Boston)
+fit = lm(nox ~ poly(dis, 3), data = Boston)
+preds = predict(fit, newdata = list(dis = sort(dis)), se = T)
+se.bands = cbind(preds$fit + 2*preds$se.fit, preds$fit - 2*preds$se.fit)
+plot(dis, nox, cex = .5, col = "darkgrey")
+title("Cubic Polynomial Regression")
+lines(sort(dis), preds$fit, lwd = 2, col = "red")
+matlines(sort(dis), se.bands, lwd = 1, col = "blue", lty = 3)
+```
+
+
+###Excercise 9b
+```{r}
+```{r fig.height=7, fig.width=10}
+par(mfrow = c(2, 5))
+for ( i in 1:10 ) {
+  fit = lm(nox ~ poly(dis, i), data = Boston)
+  preds = predict(fit, newdata = list(dis = sort(dis)), se = T)
+  se.bands = cbind(preds$fit + 2*preds$se.fit, preds$fit - 2*preds$se.fit)
+  plot(dis, nox, cex = .5, col = "darkgrey")
+  title(sprintf("%d Degree", i))
+  lines(sort(dis), preds$fit, lwd = 2, col = "red")
+  matlines(sort(dis), se.bands, lwd = 1, col = "blue", lty = 3)
+}
+par(mfrow = c(1, 1))
+```
+
+###Excercise 9c
+```{r}
+set.seed(1)
+all.cvs = rep(NA, 10)
+for ( i in 1:10 ) {
+  fit = glm(nox ~ poly(dis, i), data = Boston)
+  all.cvs[i] = cv.glm(Boston, fit, K = 10)$delta[1]
+}
+plot(all.cvs, type = "l", lwd = 2, col = "blue", xlab = "Degree of Polynomials", ylab = "Validation Error")
+title("Cross-validation with K = 10")
+points(which.min(all.cvs), min(all.cvs), col = "red", cex = 2, pch = 20)
+```
+
+After testing with cross-validation, degree `r which.min(all.cvs)` of polynomials is our best choice.
+
+###Excercise 9d
+```{r}
+library(splines)
+fit = lm(nox~bs(dis, df = 4)) # For calculation of degrees of freedom in bs(), the intercept wasn't counted.
+pred = predict(fit, newdata = list(dis = sort(dis)), se = T)
+plot(dis, nox, col = "gray")
+lines(sort(dis), pred$fit, lwd = 2, col = "red")
+lines(sort(dis), pred$fit + 2*pred$se, col = "blue", lty = 3)
+lines(sort(dis), pred$fit - 2*pred$se, col = "blue", lty = 3)
+```
+
+The single knot was chosen automatically based on quantiles:
+
+```{r}
+attr(bs(dis, df = 4), "knots")
+```
+
+###Excercise 9e
+```{r fig.height=7, fig.width=10}
+par(mfrow = c(2,4))
+for ( i in 3:10 ) {
+  fit = lm(nox~bs(dis, df = i)) # For calculation of degrees of freedom in bs(), the intercept wasn't counted.
+  pred = predict(fit, newdata = list(dis = sort(dis)), se = T)
+  plot(dis, nox, col = "gray")
+  title(sprintf("%d Degree", i))
+  lines(sort(dis), pred$fit, lwd = 2, col = "red")
+  lines(sort(dis), pred$fit + 2*pred$se, col = "blue", lty = 3)
+  lines(sort(dis), pred$fit - 2*pred$se, col = "blue", lty = 3)
+}
+par(mfrow = c(1,1))
+```
+
+###Excercise 9f
+```{r}
+set.seed(1)
+all.cvs = rep(NA, 20)
+for ( i in 3:20 ) {
+  fit = glm(nox ~ bs(dis, df = i))
+  all.cvs[i] = cv.glm(Boston, fit, K = 10)$delta[1]
+}
+plot(seq(3, 20), all.cvs[-(1:2)], type = "l", lwd = 2, col = "blue", xlab = "Degrees of Freedom", ylab = "Validation Error")
+title("Cross-validation with K = 10")
+points(which.min(all.cvs[-(1:2)])+2, min(all.cvs[-(1:2)]), col = "red", cex = 2, pch = 20)
+```
+
+After testing with cross-validation, `r which.min(all.cvs[-(1:2)])+2` degrees of freedom is our best choice in using bs().
+
+```{r}
+# clean up
+rm(list = ls())
+```
+
+###Excercise 10a
+```{r}
+library(leaps)
+attach(College)
+train = sample(nrow(College), nrow(College) / 2)
+test = -train
+train.X = College[train, ]
+test.X = College[test, ]
+test.Y = Outstate[test]
+
+regfit.fwd = regsubsets(Outstate~., data = train.X, nvmax = ncol(College) - 1, method = "forward")
+regfit.fwd_summary = summary(regfit.fwd)
+
+par(mfrow = c(2,2))
+plot(regfit.fwd_summary$rss, xlab = "Number of Variables", ylab = "RSS", type = "l")
+points(which.min(regfit.fwd_summary$rss), min(regfit.fwd_summary$rss), col = "red", cex = 2, pch = 20)
+plot(regfit.fwd_summary$adjr2, xlab = "Number of variables", ylab = "Adjusted RSq", type = "l")
+points(which.max(regfit.fwd_summary$adjr2), max(regfit.fwd_summary$adjr2), col = "red", cex = 2, pch = 20)
+plot(regfit.fwd_summary$cp, xlab = "Number of variables", ylab = "Mallows' Cp", type = "l")
+points(which.min(regfit.fwd_summary$cp), min(regfit.fwd_summary$cp), col = "red", cex = 2, pch = 20)
+plot(regfit.fwd_summary$bic, xlab = "Number of variables", ylab = "BIC", type = "l")
+points(which.min(regfit.fwd_summary$bic), min(regfit.fwd_summary$bic), col = "red", cex = 2, pch = 20)
+par(mfrow = c(1,1))
+```
+
+We would choose the model based on BIC, i.e. with the following subset of predictors:
+
+```{r}
+coef(regfit.fwd, which.min(regfit.fwd_summary$bic))
+```
+
+###Excercise 10b
+```{r fig.height=7, fig.width=10}
+library(gam)
+par(mfrow = c(2,5))
+gam.m = gam(Outstate ~ Private + Apps + Accept + Top25perc + Room.Board + Personal + Terminal + perc.alumni + Expend + Grad.Rate, data = College)
+plot.gam(gam.m, se = T, col = "red")
+par(mfrow = c(1,1))
+```
+
+Privat schoold have obviously higher out-of-state tuition, the other predictors except _personal_ have positive correlationship with response while _personal_ has negative correlationship with the response.
+
+###Excercise 10c
+```{r}
+preds_all_linear = predict(gam.m, newdata = test.X)
+mean((preds_all_linear - test.Y)^2)
+```
+
+###Excercise 10d
+First, let us fit the data with each predictor attached to a non-linear function:
+
+```{r fig.height=7, fig.width=10}
+par(mfrow = c(2,5))
+gam.full = gam(Outstate ~ Private + s(Apps, 4) + s(Accept, 4) + s(Top25perc, 4) + s(Room.Board, 4) + s(Personal, 4) + s(Terminal, 4) + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+plot.gam(gam.full , se = T, col = "red")
+```
+
+And calculate the difference of test set RSS between model with all predictors attached to linear functions and model with all predictors attached to non-linear functions:
+
+```{r}
+preds_all_nonlinear = predict(gam.full, newdata = test.X)
+mean((preds_all_nonlinear - test.Y)^2)
+mean((preds_all_linear - test.Y)^2) - mean((preds_all_nonlinear - test.Y)^2)
+par(mfrow = c(1,1))
+```
+
+As shown above, the difference is huge, therefore it is certain that the subset of predictors are non-linear to the response in the true relationship. Let us find out those predictors by obtaining different models and test them using anova. Suppose we want to test whether predictor ${{\bf{x}}_j}$ should be avoided, or attached to a linear/non-linear function, the following models should be obtained and tested with ANOVA while holding functions of other predictors fixed:
+
+1. Model without predictor ${\bf x}_j$.  
+2. Model with predictor ${\bf x}_j$ attached to a linear function.  
+3. Model with predictor ${\bf x}_j$ attached to a non-linear function.
+
+```{r}
+gam.m1 = gam(Outstate ~ Private + s(Accept, 4) + s(Top25perc, 4) + s(Room.Board, 4) + s(Personal, 4) + s(Terminal, 4) + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+gam.m2 = gam(Outstate ~ Private + Apps + s(Accept, 4) + s(Top25perc, 4) + s(Room.Board, 4) + s(Personal, 4) + s(Terminal, 4) + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+gam.m3 = gam(Outstate ~ Private + s(Apps, 4) + s(Accept, 4) + s(Top25perc, 4) + s(Room.Board, 4) + s(Personal, 4) + s(Terminal, 4) + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+anova(gam.m1, gam.m2, gam.m3, test = "F")
+```
+
+The result indicates that predictor _App_ should be avoided.
+
+```{r}
+gam.m1 = gam(Outstate ~ Private + s(Top25perc, 4) + s(Room.Board, 4) + s(Personal, 4) + s(Terminal, 4) + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+gam.m2 = gam(Outstate ~ Private + Accept + s(Top25perc, 4) + s(Room.Board, 4) + s(Personal, 4) + s(Terminal, 4) + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+gam.m3 = gam(Outstate ~ Private + s(Accept, 4) + s(Top25perc, 4) + s(Room.Board, 4) + s(Personal, 4) + s(Terminal, 4) + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+anova(gam.m1, gam.m2, gam.m3, test = "F")
+```
+
+The result indicates that predictor _Accept_ should be attched to a non-linear function.
+
+```{r}
+gam.m1 = gam(Outstate ~ Private + s(Accept, 4) + s(Room.Board, 4) + s(Personal, 4) + s(Terminal, 4) + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+gam.m2 = gam(Outstate ~ Private + s(Accept, 4) + Top25perc + s(Room.Board, 4) + s(Personal, 4) + s(Terminal, 4) + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+gam.m3 = gam(Outstate ~ Private + s(Accept, 4) + s(Top25perc, 4) + s(Room.Board, 4) + s(Personal, 4) + s(Terminal, 4) + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+anova(gam.m1, gam.m2, gam.m3, test = "F")
+```
+
+The result indicates that predictor _Top25perc_ should be avoided.
+
+```{r}
+gam.m1 = gam(Outstate ~ Private + s(Accept, 4) + s(Personal, 4) + s(Terminal, 4) + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+gam.m2 = gam(Outstate ~ Private + s(Accept, 4) + Room.Board + s(Personal, 4) + s(Terminal, 4) + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+gam.m3 = gam(Outstate ~ Private + s(Accept, 4) + s(Room.Board, 4) + s(Personal, 4) + s(Terminal, 4) + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+anova(gam.m1, gam.m2, gam.m3, test = "F")
+```
+
+The result indicates that predictor _Room.Board_ should be attched to a linear function.
+
+```{r}
+gam.m1 = gam(Outstate ~ Private + s(Accept, 4) + Room.Board + s(Terminal, 4) + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+gam.m2 = gam(Outstate ~ Private + s(Accept, 4) + Room.Board + Personal + s(Terminal, 4) + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+gam.m3 = gam(Outstate ~ Private + s(Accept, 4) + Room.Board + s(Personal, 4) + s(Terminal, 4) + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+anova(gam.m1, gam.m2, gam.m3, test = "F")
+```
+
+The result indicates that predictor _Personal_ should be attched to a non-linear function.
+
+```{r}
+gam.m1 = gam(Outstate ~ Private + s(Accept, 4) + Room.Board + s(Personal, 4) + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+gam.m2 = gam(Outstate ~ Private + s(Accept, 4) + Room.Board + s(Personal, 4) + Terminal + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+gam.m3 = gam(Outstate ~ Private + s(Accept, 4) + Room.Board + s(Personal, 4) + s(Terminal, 4) + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+anova(gam.m1, gam.m2, gam.m3, test = "F")
+```
+
+The result indicates that predictor _Terminal_ should be attched to a linear function.
+
+```{r}
+gam.m1 = gam(Outstate ~ Private + s(Accept, 4) + Room.Board + s(Personal, 4) + Terminal + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+gam.m2 = gam(Outstate ~ Private + s(Accept, 4) + Room.Board + s(Personal, 4) + Terminal + perc.alumni + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+gam.m3 = gam(Outstate ~ Private + s(Accept, 4) + Room.Board + s(Personal, 4) + Terminal + s(perc.alumni, 4) + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+anova(gam.m1, gam.m2, gam.m3, test = "F")
+```
+
+The result indicates that predictor _perc.alumni_ should be attched to a linear function.
+
+```{r}
+gam.m1 = gam(Outstate ~ Private + s(Accept, 4) + Room.Board + s(Personal, 4) + Terminal + perc.alumni + s(Grad.Rate, 4), data = College)
+gam.m2 = gam(Outstate ~ Private + s(Accept, 4) + Room.Board + s(Personal, 4) + Terminal + perc.alumni + Expend + s(Grad.Rate, 4), data = College)
+gam.m3 = gam(Outstate ~ Private + s(Accept, 4) + Room.Board + s(Personal, 4) + Terminal + perc.alumni + s(Expend, 4) + s(Grad.Rate, 4), data = College)
+anova(gam.m1, gam.m2, gam.m3, test = "F")
+```
+
+The result indicates that predictor _Expend_ should be attched to a linear function.
+
+```{r}
+gam.m1 = gam(Outstate ~ Private + s(Accept, 4) + Room.Board + s(Personal, 4) + Terminal + perc.alumni + Expend, data = College)
+gam.m2 = gam(Outstate ~ Private + s(Accept, 4) + Room.Board + s(Personal, 4) + Terminal + perc.alumni + Expend + Grad.Rate, data = College)
+gam.m3 = gam(Outstate ~ Private + s(Accept, 4) + Room.Board + s(Personal, 4) + Terminal + perc.alumni + Expend + s(Grad.Rate, 4), data = College)
+anova(gam.m1, gam.m2, gam.m3, test = "F")
+```
+
+The result indicates that predictor _Grad.Rate_ should be attched to a linear function.
+
+Finally, we obtained our model as:
+
+```{r fig.height=7, fig.width=10}
+gam.final = gam(Outstate ~ Private + s(Accept, 4) + Room.Board + s(Personal, 4) + Terminal + perc.alumni + Expend + Grad.Rate, data = College)
+par(mfrow = c(2,4))
+plot.gam(gam.final, se = T, col = "red")
+preds_final = predict(gam.final, newdata = test.X)
+mean((preds_final - test.Y)^2)
+par(mfrow = c(1,1))
+```
+
+We see above that at the boundary region of plots of  _Accept_ vs. response and _Personal_ vs. response, the confidence bands appear fairly wild. Therefore, we may try natural spline regression instead of smoothing regression for better fit:
+
+```{r fig.height=7, fig.width=10}
+gam.final = gam(Outstate ~ Private + ns(Accept, 4) + Room.Board + ns(Personal, 4) + Terminal + perc.alumni + Expend + Grad.Rate, data = College)
+par(mfrow = c(2,4))
+plot.gam(gam.final, se = T, col = "red")
+preds_final = predict(gam.final, newdata = test.X)
+mean((preds_final - test.Y)^2)
+par(mfrow = c(1,1))
+```
+
+The test set RSS of the model using natural spline for predictors that have non-linear relationship with the response is slighly higher than the model using smoothing spline, therefore, we choose the model using smoothing spline but with higher degrees of freedom:
+
+```{r}
+gam.final = gam(Outstate ~ Private + s(Accept, 8) + Room.Board + s(Personal, 8) + Terminal + perc.alumni + Expend + Grad.Rate, data = College)
+preds_final = predict(gam.final, newdata = test.X)
+mean((preds_final - test.Y)^2)
+```
+
+Compare the final model with the full model:
+
+```{r}
+mean((preds_all_nonlinear - test.Y)^2) - mean((preds_final - test.Y)^2)
+```
+
+Compare the final model with the linear model (the model with all predictors attached to linear functions):
+
+```{r}
+mean((preds_all_linear - test.Y)^2) - mean((preds_final - test.Y)^2)
+```
+
+Visualization result:
+
+```{r fig.height=4, fig.width=5}
+barplot(c(mean((preds_all_linear - test.Y)^2), mean((preds_all_nonlinear - test.Y)^2), mean((preds_final - test.Y)^2)), col = "red", names.arg = c("Linear Model", "Full Model", "Final Model"), main = "Test RSS")
+```
+
+__Conclusively, for predictors _Accept_ and _Personal_, there are evidences of non-linear relationship with the response. However, the model with predictors chosen by ANOVA method has considerably higher test set RSS comparing to the model with all predictors attached to non-linear functions, though it is only slightly better than the model with all predictors attached to linear functions.__
+
+###Excercise 11a
+```{r}
+set.seed(1)
+beta_0 = -3.8; beta_1 = 1.7; beta_2 = 3.8
+x_1 = rnorm(100); x_2 = rnorm(100)
+error = rnorm(100, 0.3, 2.2)
+y = beta_0 + beta_1 * x_1 + beta_2 * x_2 + error
+```
+
+###Excercise 11b
+```{r}
+beta_1 = 0
+```
+
+###Excercise 11c
+```{r}
+a = y - beta_1 * x_1
+beta_2 = lm(a ~ x_2)$coef[2]
+```
+
+###Excercise 11d
+```{r}
+a = y - beta_2 * x_2
+beta_1 = lm(a ~ x_1)$coef[2]
+```
+
+###Excercise 11e
+```{r}
+beta_1s = c(); beta_2s = c(); beta_0s = c()
+beta_1s[0] = 0; beta_1s[1] = 0; beta_2s[1] = 0
+for( i in 2:11 ) { # we don't have to iterate 1000 times when using this data set
+  a = y - beta_1s[i-1] * x_1
+  beta_2s[i] = lm(a ~ x_2)$coef[2]
+  
+  a = y - beta_2s[i] * x_2
+  beta_1s[i] = lm(a ~ x_1)$coef[2]
+  
+  beta_0s[i] = lm(a ~ x_1)$coef[1]
+  
+  print("-------------------------------------")
+  print(sprintf("Iteration %d", i - 1))
+  print(sprintf("Estimated Beta0 = %f", beta_0s[i]))
+  print(sprintf("Estimated Beta1 = %f", beta_1s[i]))
+  print(sprintf("Estimated Beta2 = %f", beta_2s[i]))
+}
+```
+
+###Excercise 11f
+```{r}
+fit = lm(y ~ x_1 + x_2)
+require(grDevices)
+matplot(cbind(beta_0s[-1], beta_1s[-1], beta_2s[-1]), col = 2:4, type = "l", lty = 1, lwd = 2, xlab = "Iteration #", ylab = "Coefficient estimates")
+abline(h = fit$coef[1], lty = "dashed", lwd = 2, col = rgb(0, 0, 0, alpha = 0.4))
+abline(h = fit$coef[2], lty = "dashed", lwd = 2, col = rgb(0, 0, 0, alpha = 0.4))
+abline(h = fit$coef[3], lty = "dashed", lwd = 2, col = rgb(0, 0, 0, alpha = 0.4))
+legend("center", legend = c("Multiple regression", "Beta0", "Beta1", "Beta2"), col = 1:4, pch = 1) 
+```
+
+As we see above, the coefficient estimates obtained from multiple regression are identical to the results obtained using backfitting.
+
+###Excercise 11g
+Just one backfitting iteration is sufficient to obtain a good approximation to the multiple regression coefficient estimates.
+
+###Excercise 12
+```{r}
+set.seed(1)
+n = 1000; p = 100
+betas = runif(p + 1, -10, 10)
+error = rnorm(n, mean = 0, sd = 2.1)
+xs = matrix(NA, nrow = n, ncol = p + 1)
+xs[, 1] = rep(1, n)
+for ( i in 1:p ) {
+  xs[, i+1] = rnorm(n, mean = runif(1, -10, 10), sd = runif(1, 0.5, 3))
+}
+y = xs %*% betas  + error
+xs = xs[, -1] # to simplify calculation
+```
+
+Using backfitting procedure:
+
+```{r}
+N_iteration = 10
+estimated_betas = matrix(0, nrow = N_iteration, ncol = p) # excluding beta0 to simplify calculation
+error = c()
+error[1] = mean((y - xs %*% estimated_betas[1, ])^2) 
+for ( i in 1:N_iteration ) {  # NOTE: priority of ":" is greater than "+-"
+  for ( j in 1:p ) {
+    if ( i == 1 ) {
+      a = y - xs[, -j] %*% estimated_betas[i, -j] 
+      estimated_betas[i, j] = lm(a ~ xs[, j])$coef[2]
+    } else {
+      a = y - xs[, -j] %*% estimated_betas[i-1, -j] 
+      estimated_betas[i, j] = lm(a ~ xs[, j])$coef[2]
+    }
+  }
+  error[i+1] = mean((y - xs %*% estimated_betas[i, ])^2) 
+}
+```
+
+Using multiple regression:
+
+```{r}
+fit = lm(y ~ ., data = data.frame(x = xs, y = y))
+```
+
+Visualize the results:
+
+```{r}
+N_show_beta = 10
+matplot(estimated_betas[, 1:N_show_beta], lwd = 2, col = 2:N_show_beta+1, type = "l", lty = 1, xlab = "Iteration #", ylab = "Coefficient estimates")
+for ( i in 1:N_show_beta ) {
+  abline(h = fit$coef[i+1], lty = "dashed", lwd = 2, col = rgb(0, 0, 0, alpha = 0.4))
+}
+beta_names = c()
+for ( i in 1:N_show_beta ) {
+  beta_names[i] = sprintf("beta%d", i)
+}
+legend("center", legend = c("multiple regression", beta_names), col = c(rgb(0, 0, 0, alpha = 0.4), 2:N_show_beta+1), pch = 1) 
+plot(seq(0, N_iteration), error, xlab  = "Iteration #", col = "red", lwd = 2, type = "b", ylab = "Backfitting RSS")
+```
+
+As shown above, after 4 iterations, the backfitting approach can obtain good approximation to the multiple regression coeffcieint estimates.
+

@@ -1,0 +1,1498 @@
+---
+title: "Chapter 6"
+output:
+  html_document:
+    toc: true
+---
+
+```{r  setup, include = FALSE, cache = FALSE}
+# library(knitr)
+# opts_chunk$set(cache=T)
+library(RefManageR)
+bib = ReadBib(sprintf("%s/mybib.bib", knitr:::input_dir()), check = "error")
+BibOptions(sorting = "none", style = "markdown", bib.style = "alphabetic")
+```
+
+##Conceptual
+###Excercise 1a
+Best subset selection approach has the smallest training RSS among all the three methods. Because with $k$ predictors, both forward stepwise and backward stepwise selection methods need to fix $j - 1$ predictors before finding the best $j$ -th predictor, thus the search space will be reduced comparing to best subset selection approach.
+
+###Excercise 1b
+Cannot be determined. Best subset selection approach has higher chance to achive smallest test RSS since it considers more models. However, it is still possible for forward stepwise and backward stepwise selection methods to outperform best subset selection method in terms of test RSS.
+
+###Excercise 1c
+i. TRUE.  
+ii. TRUE.    
+iii. FALSE.  
+iv. FALSE.  
+v. FASLE.  
+
+###Excercise 2a
+__iii__ is correct: least squares has low bias when $p$ is sufficiently large. Since lasso constraints non-zero coefficient estimates to zeros, meaning an increase in bias (due to the reduced number of coefficient estimates) and a decrease in variance. If the decrease in variance is more than the increase in bias, lasso method will give improved prediction accuracy comparing to least squares method.
+
+###Excercise 2b
+__iii__ is correct: same with above, except that ridge regression method supresses coefficient estimates to lower magnitude rather than setting them to zeros.
+
+###Excercise 2c
+__ii__ is correct: non-linear methods are more flexible than least sqaures, resulting in reduced bias and increase in variance. If the decrease in bias is more than the increase in variance, we can expect an improved prediction accuracy in non-linear methods.
+
+###Excercise 3a
+__iv__ is correct: when $s = 0$ (i.e., the $l_1$ norm constraint is strongest), the model supresses all coefficient estimates to zeros, resulting in a null model which consists of only intercept term. In this case, the training RSS is _largest_ since no predictors helps explain the response. As $s$ increases, coefficient estimates become larger and response are better explained which leads to a _steadily decrease_ in training RSS.
+
+###Excercise 3b
+__ii__ is correct: as $s$ increases, $l_1$ norm constraint becomes weaker, resulting in more coefficient estimates with larger values. We can expect test RSS decreases first as the model explains more in response, however, when $s$ becomes sufficiently large, lasso is closing  to the linear regression model and in this case, the increase in variance is more than the decrease in bias thus resulting in an increase in test RSS. Overall speaking, the test RSS can be drawn in a U-shape.
+
+###Excercise 3c
+__iii__ is correct: as explained above, when $s$ increases from 0, the model develops from null model to linear regression model, where the variance is increasing.
+
+###Excercise 3d
+__iv__ is correct: as explained above, when $s$ increases from 0, the model develops from null model to linear regression model, where the squared bias is decreasing.
+
+###Excercise 3e
+__v__ is corerct: irreducible error won't be changed and keeps constant no matter how $s$ changes (i.e. _model independent_).
+
+###Excercise 4a
+__iii__ is correct: as $\lambda$ increases from 0, the model develops from linear regression method to a $l_2$ norm constrained one meaning that the training error is increasing.
+
+###Excercise 4b
+__ii__ is correct: when $\lambda = 0$, ridge regression is equivalent to linear regression and as $\lambda$ increases, the decrease in bias is more than the increase in variance resulting in a decrease in test RSS. After certain point, test RSS increases when the decrease in bias is less than the increase in variance. Therefore, the test RSS can be drawn in a U-shape.
+
+###Excercise 4c
+__iv__ is correct: as $\lambda$ increases from 0, the model develops from linear regression method to a more $l_2$ norm constrained one which leads to decreasing variance. On the other hand, suppose $\lambda = +\infty$, then ${\bf{\beta }} = {\bf 0}$, and the model becomes constant where the variance is smallest.
+
+###Excercise 4d
+__iii__ is correct: as $\lambda$ increases from 0, the model develops from linear regression method to a more $l_2$ norm constrained one which leads to increasing squared bias. On the other hand, suppose $\lambda = +\infty$, then ${\bf{\beta }} = {\bf 0}$, and the model becomes constant where the squared bias is largest.
+
+###Excercise 4e
+__v__ is correct: irreducible error is model independent.
+
+###Excercise 5a
+$$
+\begin{array}{l}
+\sum\nolimits_{i = 1}^n {{{({y_i} - {{\hat \beta }_0} - \sum\nolimits_{j = 1}^p {{{\hat \beta }_j}{x_{ij}}} )}^2} + \lambda \sum\nolimits_{j = 1}^p {\hat \beta _j^2} } \\
+ = \sum\nolimits_{i = 1}^n {{{({y_i} - {{\hat \beta }_0} - {{\hat \beta }_1}{x_{i1}} - {{\hat \beta }_2}{x_{i2}})}^2} + \lambda \beta _1^2 + \lambda \hat \beta _2^2} \\
+ = {({y_1} - {{\hat \beta }_0} - {{\hat \beta }_1}{x_{11}} - {{\hat \beta }_2}{x_{12}})^2} + {({y_2} - {{\hat \beta }_0} - {{\hat \beta }_1}{x_{21}} - {{\hat \beta }_2}{x_{22}})^2} + \lambda \hat \beta _1^2 + \lambda \hat \beta _2^2
+\end{array}
+$$
+Since
+$$
+\begin{array}{l}
+{{\hat \beta }_0} = 0\\
+{y_1} + {y_2} = 0\\
+{x_{11}} + {x_{21}} = 0\\
+{x_{12}} + {x_{22}} = 0
+\end{array}
+$$
+, meaning that both predictors $x_1$, $x_2$ and response $y$ were centrally normalized which resulted in ${\hat \beta}_0 = 0$. 
+
+Therefore, the ridge regression optimization was rewritten as
+$$
+{({y_1} - {{\hat \beta }_1}{x_{11}} - {{\hat \beta }_2}{x_{12}})^2} + {({y_2} - {{\hat \beta }_1}{x_{21}} - {{\hat \beta }_2}{x_{22}})^2} + \lambda \hat \beta _1^2 + \lambda \hat \beta _2^2
+$$
+
+###Excercise 5b
+Take the derivatives w.r.t. $\hat \beta _1$ and $\hat \beta _2$ respectively and setting them to zeros, we have:
+$$
+\begin{array}{l}
+\frac{d}{{d{{\hat \beta }_1}}}f(x) =  - 2({x_{11}} + {x_{21}}) + 2\lambda {{\hat \beta }_1} = 0\\
+\frac{d}{{d{{\hat \beta }_2}}}f(x) =  - 2({x_{12}} + 2{x_{22}}) + 2\lambda {{\hat \beta }_2} = 0
+\end{array}
+$$
+Therefore, 
+$$
+- 2({x_{11}} + {x_{21}}) + 2\lambda {{\hat \beta }_1} =  - 2({x_{12}} + 2{x_{22}}) + 2\lambda {{\hat \beta }_2}
+$$
+Given ${x_{11}} + {x_{21}} = 0$ and ${x_{12}} + {x_{22}} = 0$, 
+$$
+\begin{array}{l}
+2\lambda {{\hat \beta }_1} = 2\lambda {{\hat \beta }_2}\\
+{{\hat \beta }_1} = {{\hat \beta }_2}
+\end{array}
+$$
+
+###Excercise 5c
+$$
+\begin{array}{l}
+\sum\nolimits_{i = 1}^n {{{({y_i} - {{\hat \beta }_0} - \sum\nolimits_{j = 1}^p {{{\hat \beta }_j}{x_{ij}}} )}^2} + \lambda \sum\nolimits_{j = 1}^p {\left| {{{\hat \beta }_j}} \right|} } \\
+ = \sum\nolimits_{i = 1}^n {{{({y_i} - {{\hat \beta }_0} - {{\hat \beta }_1}{x_{i1}} - {{\hat \beta }_2}{x_{i2}})}^2} + \lambda \left| {{{\hat \beta }_1}} \right| + \lambda \left| {{{\hat \beta }_2}} \right|} \\
+ = {({y_1} - {{\hat \beta }_0} - {{\hat \beta }_1}{x_{11}} - {{\hat \beta }_2}{x_{12}})^2} + {({y_2} - {{\hat \beta }_0} - {{\hat \beta }_1}{x_{21}} - {{\hat \beta }_2}{x_{22}})^2} + \lambda \left| {{{\hat \beta }_1}} \right| + \lambda \left| {{{\hat \beta }_2}} \right|
+\end{array}
+$$
+Provided ${\hat \beta}_0 = 0$, we can rewrite the lasso optimization problem by
+$$
+{({y_1} - {{\hat \beta }_1}{x_{11}} - {{\hat \beta }_2}{x_{12}})^2} + {({y_2} - {{\hat \beta }_1}{x_{21}} - {{\hat \beta }_2}{x_{22}})^2} + \lambda \left| {{{\hat \beta }_1}} \right| + \lambda \left| {{{\hat \beta }_2}} \right|
+$$
+
+###Excercise 5d*`r Citep(bib, "AmirISLRSol", .opts = list(cite.style= "authoryear"))`
+
+To take the derivatives of functions containing absolute values, we can utilize:
+$$
+\frac{d}{{dx}}\left| {\rm{u}} \right| = \frac{d}{{dx}}\sqrt {{{\rm{u}}^2}}  = \frac{d}{{dx}}{\left( {{{\rm{u}}^2}} \right)^{\frac{1}{2}}} = \frac{1}{2}{\left( {{{\rm{u}}^2}} \right)^{ - \frac{1}{2}}} \bullet 2{\rm{u}} \bullet {\rm{u' = }}\frac{{{\rm{u}} \bullet {\rm{u'}}}}{{\sqrt {{{\rm{u}}^2}} }}{\rm{ = }}\frac{{{\rm{u}} \bullet {\rm{u'}}}}{{\left| {\rm{u}} \right|}}
+$$
+Then by taking the derivatives w.r.t. $\hat \beta _1$ and $\hat \beta _2$ respectively and setting them to zeros, we have:
+$$
+\begin{array}{l}
+\frac{d}{{d{{\hat \beta }_1}}}f(x) =  - 2({x_{11}} + {x_{21}}) + \lambda \frac{{{{\hat \beta }_1}}}{{\left| {{{\hat \beta }_1}} \right|}} = 0\\
+\frac{d}{{d{{\hat \beta }_2}}}f(x) =  - 2({x_{12}} + 2{x_{22}}) + \lambda \frac{{{{\hat \beta }_2}}}{{\left| {{{\hat \beta }_2}} \right|}} = 0
+\end{array}
+$$
+Therefore, 
+$$
+ - 2({x_{11}} + {x_{21}}) + \lambda \frac{{{{\hat \beta }_1}}}{{\left| {{{\hat \beta }_1}} \right|}} =  - 2({x_{12}} + 2{x_{22}}) + \lambda \frac{{{{\hat \beta }_2}}}{{\left| {{{\hat \beta }_2}} \right|}}
+$$
+Given ${x_{11}} + {x_{21}} = 0$ and ${x_{12}} + {x_{22}} = 0$, 
+$$
+\frac{{{{\hat \beta }_1}}}{{\left| {{{\hat \beta }_1}} \right|}} = \frac{{{{\hat \beta }_2}}}{{\left| {{{\hat \beta }_2}} \right|}}
+$$
+, from which we can see there are many possible solutions and $\hat{\beta}_1$, $\hat{\beta}_2$ take the same sign. Consider the alternative form of lasso constraints $| \hat{\beta}_1 | + | \hat{\beta}_2 | < s$, we have solutions $| \hat{\beta}_1 | + | \hat{\beta}_2 | = s$, which can be furthur expanded to:  
+$\hat{\beta}_1 + \hat{\beta}_2 = s; \hat{\beta}_1 \geq 0; \hat{\beta}_2 \geq 0$ and $\hat{\beta}_1 + \hat{\beta}_2 = -s; \hat{\beta}_1 \leq 0; \hat{\beta}_2 \leq 0$.
+
+-----------------------------------------------
+
+We can also explain the solutions from a geometric interpretation:  
+Provided the facts that $x_{11} = x_{12}$, $x_{21} = x_{22}$ and $y_1 + y_2 = 0$, we can simplify the lasso optimization as
+$$
+2\times (y_1 - (\hat{\beta}_1 + \hat{\beta}_2)x_{11})^2
+$$
+This optimization problem has a simple solution: $\hat{\beta}_1 + \hat{\beta}_2 = \frac{y_1}{x_{11}}$. This is a line parallel to the edge of lasso-diamond $\hat{\beta}_1 + \hat{\beta}_2 = s$. As a result, the entire edge $\hat{\beta}_1 + \hat{\beta}_2 = s$ is a potential solution to the Lasso optimization problem!
+
+Similar argument can be made for the opposite Lasso-diamond edge: $\hat{\beta}_1 + \hat{\beta}_2 = -s$.
+
+Finally, the general form of solution is given by two line segments:  
+$\hat{\beta}_1 + \hat{\beta}_2 = s; \hat{\beta}_1 \geq 0; \hat{\beta}_2 \geq 0$ and $\hat{\beta}_1 + \hat{\beta}_2 = -s; \hat{\beta}_1 \leq 0; \hat{\beta}_2 \leq 0$.
+
+###Excercise 6a
+```{r}
+y = 10; lambda = 0.5
+beta = seq(0, 15, length = 100)
+RSS = (y - beta)^2 + lambda * (beta^2)
+plot(beta, RSS, type = "l")
+beta[which.min(RSS)]
+best_beta = y / (1 + lambda)
+best_beta
+```
+
+As shown above, (6.12) can be solved directly by (6.14).
+
+__Proof__:  
+When there is only one predictor, we take the simple form of ridge regression as
+$$
+{({y_1} - {{\hat \beta }_1})^2} + \lambda \hat \beta _1^2
+$$
+Take derivative w.r.t. ${\hat \beta _1}$, then we have:
+$$
+\begin{array}{l}
+ - 2({y_1} - {{\hat \beta }_1}) + 2\lambda {{\hat \beta }_1} = 0\\
+ - {y_1} + {{\hat \beta }_1} + \lambda {{\hat \beta }_1} = 0\\
+{{\hat \beta }_1} = \frac{{{y_1}}}{{1 + \lambda }}
+\end{array}
+$$
+, which confirms with Equation (6.14).
+
+###Excercise 6b
+```{r}
+y = 10; lambda = 0.5
+beta = seq(0, 15, length = 100)
+RSS = (y - beta)^2 + lambda * abs(beta)
+plot(beta, RSS, type = "l")
+beta[which.min(RSS)]
+if (y > lambda / 2) {
+  best_beta = y - lambda / 2
+} else if (y < -lambda / 2) {
+  best_beta = y + lambda / 2
+} else {
+  best_beta = 0
+}
+best_beta
+```
+
+As shown above, (6.13) can be solved directly by (6.15). It is noteworthy that the discrepancy between two beta values resulted from sampling error of betas.
+
+__Proof__:  
+When there is only one predictor, we take the simple form of ridge regression as
+$$
+{({y_1} - {{\hat \beta }_1})^2} + \lambda | \beta _1 |
+$$
+Take derivative w.r.t. ${\hat \beta _1}$, then we have:
+$$
+\begin{array}{l}
+ - 2({y_1} - {{\hat \beta }_1}) + \lambda \frac{{{{\hat \beta }_1}}}{{\left| {{{\hat \beta }_1}} \right|}} = 0\\
+ - 2{y_1} + 2{{\hat \beta }_1} + \lambda \frac{{{{\hat \beta }_1}}}{{\left| {{{\hat \beta }_1}} \right|}} = 0\\
+{{\hat \beta }_1}(2 + \lambda \frac{1}{{\left| {{{\hat \beta }_1}} \right|}}) = 2{y_1}
+\end{array}
+$$
+Above equation can be solved under multiple conditions:
+$$
+\beta _1^L = \left\{ \begin{array}{l}
+{y_1} - \lambda /2,{y_1} > \lambda /2\\
+{y_1} - \lambda /2,{y_1} < - \lambda /2\\
+0,\left| {{y_1}} \right| \le \lambda /2
+\end{array} \right.
+$$
+, which confirms with Equation (6.15).
+
+###Excercise 7a*`r Citep(bib, "AmirISLRSol", .opts = list(cite.style= "authoryear"))`
+
+The likelihood for the data is:
+
+$$
+\begin{aligned}
+    L(\theta \mid \beta)
+    &= p(\beta \mid \theta)
+    \\
+    &= p(\beta_1 \mid \theta)
+    \times \cdots
+    \times p(\beta_n \mid \theta)
+    \\
+    &= \prod_{i = 1}^{n}
+    p(\beta_i \mid \theta)
+    \\
+    &= \prod_{i = 1}^{n}
+    \frac{
+        1
+    }{
+        \sigma \sqrt{2\pi}
+    }
+    \exp
+    \left(-
+        \frac{
+            Y_i - (\beta_0 + \sum_{j = 1}^{p} \beta_j X_{ij})
+        }{
+            2\sigma^2
+        }
+    \right)
+    \\
+    &=
+    \left(
+        \frac{
+            1
+        }{
+            \sigma \sqrt{2\pi}
+        }
+    \right)^n
+    \exp
+    \left(
+        - \frac{
+            1
+        }{
+            2\sigma^2
+        }
+        \sum_{i = 1}^{n}
+        \left[
+            Y_i - (\beta_0 + \sum_{j = 1}^{p} \beta_j X_{ij})
+        \right]^2
+    \right)
+\end{aligned}
+$$
+
+###Excercise 7b*`r Citep(bib, "AmirISLRSol", .opts = list(cite.style= "authoryear"))`
+
+The posterior with double exponential (Laplace Distribution) with mean 0 and
+common scale parameter $b$, i.e. $p(\beta) = \frac{1}{2b}\exp(- \lvert \beta
+\rvert / b)$ is:
+
+$$
+    f(\beta \mid X, Y)
+    \propto f(Y \mid X, \beta) p(\beta \mid X)
+    = f(Y \mid X, \beta) p(\beta)
+$$
+
+Substituting our values from (a) and our density function gives us:
+
+$$
+\begin{aligned}
+    f(Y \mid X, \beta)p(\beta)
+    &=
+    \left(
+        \frac{
+            1
+        }{
+            \sigma \sqrt{2\pi}
+        }
+    \right)^n
+    \exp
+    \left(
+        - \frac{
+            1
+        }{
+            2\sigma^2
+        }
+        \sum_{i = 1}^{n}
+        \left[
+            Y_i - (\beta_0 + \sum_{j = 1}^{p} \beta_j X_{ij})
+        \right]^2
+    \right)
+    \left(
+        \frac{
+            1
+        }{
+            2b
+        }
+        \exp(- \lvert \beta \rvert / b)
+    \right)
+    \\
+    &=
+    \left(
+        \frac{
+            1
+        }{
+            \sigma \sqrt{2\pi}
+        }
+    \right)^n
+    \left(
+        \frac{
+            1
+        }{
+            2b
+        }
+    \right)
+    \exp
+    \left(
+        - \frac{
+            1
+        }{
+            2\sigma^2
+        }
+        \sum_{i = 1}^{n}
+        \left[
+            Y_i - (\beta_0 + \sum_{j = 1}^{p} \beta_j X_{ij})
+        \right]^2
+        -
+        \frac{
+            \lvert \beta \rvert
+        }{
+            b
+            }
+    \right)
+\end{aligned}
+$$
+
+###Excercise 7c*`r Citep(bib, "AmirISLRSol", .opts = list(cite.style= "authoryear"))`
+
+Showing that the Lasso estimate for $\beta$ is the mode under this posterior
+distribution is the same thing as showing that the most likely value for
+$\beta$ is given by the lasso solution with a certain $\lambda$.
+
+We can do this by taking our likelihood and posterior and showing that it can
+be reduced to the canonical Lasso Equation 6.7 from the book.
+
+Let's start by simplifying it by taking the logarithm of both sides:
+
+$$
+\begin{aligned}
+    \log
+    f(Y \mid X, \beta)p(\beta)
+    &=
+    \log
+    \left[
+        \left(
+            \frac{
+                1
+            }{
+                \sigma \sqrt{2\pi}
+            }
+        \right)^n
+        \left(
+            \frac{
+                1
+            }{
+                2b
+            }
+        \right)
+        \exp
+        \left(
+            - \frac{
+                1
+            }{
+                2\sigma^2
+            }
+            \sum_{i = 1}^{n}
+            \left[
+                Y_i - (\beta_0 + \sum_{j = 1}^{p} \beta_j X_{ij})
+            \right]^2
+            -
+            \frac{
+                \lvert \beta \rvert
+            }{
+                b
+                }
+        \right)
+    \right]
+    \\
+    &=
+    \log
+    \left[
+        \left(
+            \frac{
+                1
+            }{
+                \sigma \sqrt{2\pi}
+            }
+        \right)^n
+        \left(
+            \frac{
+                1
+            }{
+                2b
+            }
+        \right)
+    \right]
+    -
+    \left(
+        \frac{
+            1
+        }{
+            2\sigma^2
+        }
+        \sum_{i = 1}^{n}
+        \left[
+            Y_i - (\beta_0 + \sum_{j = 1}^{p} \beta_j X_{ij})
+        \right]^2
+        +
+        \frac{
+            \lvert \beta \rvert
+        }{
+            b
+        }
+    \right)
+\end{aligned}
+$$
+
+We want to maximize the posterior, this means:
+$$
+\begin{aligned}
+    \arg\max_\beta \, f(\beta \mid X, Y)
+    &=
+    \arg\max_\beta
+    \,
+    \log
+    \left[
+        \left(
+            \frac{
+                1
+            }{
+                \sigma \sqrt{2\pi}
+            }
+        \right)^n
+        \left(
+            \frac{
+                1
+            }{
+                2b
+            }
+        \right)
+    \right]
+    -
+    \left(
+        \frac{
+            1
+        }{
+            2\sigma^2
+        }
+        \sum_{i = 1}^{n}
+        \left[
+            Y_i - (\beta_0 + \sum_{j = 1}^{p} \beta_j X_{ij})
+        \right]^2
+        +
+        \frac{
+            \lvert \beta \rvert
+        }{
+            b
+            }
+    \right)
+    \\
+\end{aligned}
+$$
+
+Since we are taking the difference of two values, the maximum of this value is
+the equivalent to taking the difference of the second value in terms of
+$\beta$. This results in:
+
+$$
+\begin{aligned}
+    &=
+    \arg\min_\beta
+    \,
+    \frac{
+        1
+    }{
+        2\sigma^2
+    }
+    \sum_{i = 1}^{n}
+    \left[
+        Y_i - (\beta_0 + \sum_{j = 1}^{p} \beta_j X_{ij})
+    \right]^2
+    +
+    \frac{
+        \lvert \beta \rvert
+    }{
+        b
+    }
+    \\
+    &=
+    \arg\min_\beta
+    \,
+    \frac{
+        1
+    }{
+        2\sigma^2
+    }
+    \sum_{i = 1}^{n}
+    \left[
+        Y_i - (\beta_0 + \sum_{j = 1}^{p} \beta_j X_{ij})
+    \right]^2
+    +
+    \frac{
+        1
+    }{
+        b
+    }
+    \sum_{j = 1}^{p} \lvert \beta_j \rvert
+    \\
+    &=
+    \arg\min_\beta
+    \,
+    \frac{
+        1
+    }{
+        2\sigma^2
+    }
+    \left(
+        \sum_{i = 1}^{n}
+        \left[
+            Y_i - (\beta_0 + \sum_{j = 1}^{p} \beta_j X_{ij})
+        \right]^2
+        +
+        \frac{
+            2\sigma^2
+        }{
+            b
+        }
+        \sum_{j = 1}^{p} \lvert \beta_j \rvert
+    \right)
+\end{aligned}
+$$
+
+By letting $\lambda = 2\sigma^2/b$, we can see that we end up with:
+
+$$
+\begin{aligned}
+    &=
+    \arg\min_\beta
+    \,
+    \sum_{i = 1}^{n}
+    \left[
+        Y_i - (\beta_0 + \sum_{j = 1}^{p} \beta_j X_{ij})
+    \right]^2
+    +
+    \lambda
+    \sum_{j = 1}^{p} \lvert \beta_j \rvert
+    \\
+    &=
+    \arg\min_\beta
+    \,
+    \text{RSS}
+    +
+    \lambda
+    \sum_{j = 1}^{p} \lvert \beta_j \rvert
+\end{aligned}
+$$
+
+which we know is the Lasso from Equation 6.7 in the book. Thus we know that
+when the posterior comes from a Laplace distribution with mean zero and common
+scale parameter $b$, the mode for $\beta$ is given by the Lasso solution when
+$\lambda = 2\sigma^2 / b$.
+
+###Excercise 7d*`r Citep(bib, "AmirISLRSol", .opts = list(cite.style= "authoryear"))`
+
+The posterior distributed according to Normal distribution with mean 0 and
+variance $c$ is:
+
+$$
+\begin{aligned}
+    f(\beta \mid X, Y)
+    \propto f(Y \mid X, \beta) p(\beta \mid X)
+    = f(Y \mid X, \beta) p(\beta)
+\end{aligned}
+$$
+
+Our probability distribution function then becomes:
+$$
+        p(\beta)
+        = \prod_{i = 1}^{p} p(\beta_i)
+        = \prod_{i = 1}^{p}
+        \frac{
+            1
+        }{
+            \sqrt{
+                2c\pi
+            }
+        }
+        \exp \left(
+            - \frac{
+                \beta_i^2
+                }{
+                    2c
+                }
+        \right)
+        = \left(
+            \frac{
+                1
+            }{
+                \sqrt{
+                    2c\pi
+                }
+            }
+        \right)^p
+        \exp \left(
+            - \frac{
+                1
+            }{
+                2c
+            }
+            \sum_{i = 1}^{p} \beta_i^2
+        \right)
+$$
+
+Substituting our values from (a) and our density function gives us:
+
+$$
+\begin{aligned}
+    f(Y \mid X, \beta)p(\beta)
+    &=
+    \left(
+        \frac{
+            1
+        }{
+            \sigma \sqrt{2\pi}
+        }
+    \right)^n
+    \exp
+    \left(
+        - \frac{
+            1
+        }{
+            2\sigma^2
+        }
+        \sum_{i = 1}^{n}
+        \left[
+            Y_i - (\beta_0 + \sum_{j = 1}^{p} \beta_j X_{ij})
+        \right]^2
+    \right)
+    \left(
+        \frac{
+            1
+        }{
+            \sqrt{
+                2c\pi
+            }
+        }
+    \right)^p
+    \exp \left(
+        - \frac{
+            1
+        }{
+            2c
+        }
+        \sum_{i = 1}^{p} \beta_i^2
+    \right)
+    \\
+    &=
+    \left(
+        \frac{
+            1
+        }{
+            \sigma \sqrt{2\pi}
+        }
+    \right)^n
+    \left(
+        \frac{
+            1
+        }{
+            \sqrt{
+                2c\pi
+            }
+        }
+    \right)^p
+    \exp
+    \left(
+        - \frac{
+            1
+        }{
+            2\sigma^2
+        }
+        \sum_{i = 1}^{n}
+        \left[
+            Y_i - (\beta_0 + \sum_{j = 1}^{p} \beta_j X_{ij})
+        \right]^2
+        - \frac{
+            1
+        }{
+            2c
+        }
+        \sum_{i = 1}^{p} \beta_i^2
+    \right)
+\end{aligned}
+$$
+
+###Excercise 7e*`r Citep(bib, "AmirISLRSol", .opts = list(cite.style= "authoryear"))`
+
+Like from part c, showing that the Ridge Regression estimate for $\beta$ is
+the mode and mean under this posterior distribution is the same thing as
+showing that the most likely value for $\beta$ is given by the lasso solution
+with a certain $\lambda$.
+
+We can do this by taking our likelihood and posterior and showing that it can
+be reduced to the canonical Ridge Regression Equation 6.5 from the book.
+
+Let's start by simplifying it by taking the logarithm of both sides:
+
+Once again, we can take the logarithm of both sides to simplify it:
+
+$$
+\begin{aligned}
+    \log f(Y \mid X, \beta)p(\beta)
+    &=
+    \left(
+        \frac{
+            1
+        }{
+            \sigma \sqrt{2\pi}
+        }
+    \right)^n
+    \left(
+        \frac{
+            1
+        }{
+            \sqrt{
+                2c\pi
+            }
+        }
+    \right)^p
+    \exp
+    \left(
+        - \frac{
+            1
+        }{
+            2\sigma^2
+        }
+        \sum_{i = 1}^{n}
+        \left[
+            Y_i - (\beta_0 + \sum_{j = 1}^{p} \beta_j X_{ij})
+        \right]^2
+        - \frac{
+            1
+        }{
+            2c
+        }
+        \sum_{i = 1}^{p} \beta_i^2
+    \right)
+    \\
+    &=
+    \log
+    \left[
+        \left(
+            \frac{
+                1
+            }{
+                \sigma \sqrt{2\pi}
+            }
+        \right)^n
+        \left(
+            \frac{
+                1
+            }{
+                \sqrt{
+                    2c\pi
+                }
+            }
+        \right)^p
+    \right]
+    -
+    \left(
+        \frac{
+            1
+        }{
+            2\sigma^2
+        }
+        \sum_{i = 1}^{n}
+        \left[
+            Y_i - (\beta_0 + \sum_{j = 1}^{p} \beta_j X_{ij})
+        \right]^2
+        +
+        \frac{
+            1
+        }{
+            2c
+        }
+        \sum_{i = 1}^{p} \beta_i^2
+    \right)
+\end{aligned}
+$$
+
+We want to maximize the posterior, this means:
+$$
+\begin{aligned}
+    \arg\max_\beta \, f(\beta \mid X, Y)
+    &=
+    \arg\max_\beta
+    \,
+    \log
+    \left[
+        \left(
+            \frac{
+                1
+            }{
+                \sigma \sqrt{2\pi}
+            }
+        \right)^n
+        \left(
+            \frac{
+                1
+            }{
+                \sqrt{
+                    2c\pi
+                }
+            }
+        \right)^p
+    \right]
+    -
+    \left(
+        \frac{
+            1
+        }{
+            2\sigma^2
+        }
+        \sum_{i = 1}^{n}
+        \left[
+            Y_i - (\beta_0 + \sum_{j = 1}^{p} \beta_j X_{ij})
+        \right]^2
+        +
+        \frac{
+            1
+        }{
+            2c
+        }
+        \sum_{i = 1}^{p} \beta_i^2
+    \right)
+\end{aligned}
+$$
+
+Since we are taking the difference of two values, the maximum of this value is
+the equivalent to taking the difference of the second value in terms of
+$\beta$. This results in:
+
+$$
+\begin{aligned}
+    &=
+    \arg\min_\beta
+    \,
+    \left(
+        \frac{
+            1
+        }{
+            2\sigma^2
+        }
+        \sum_{i = 1}^{n}
+        \left[
+            Y_i - (\beta_0 + \sum_{j = 1}^{p} \beta_j X_{ij})
+        \right]^2
+        +
+        \frac{
+            1
+        }{
+            2c
+        }
+        \sum_{i = 1}^{p} \beta_i^2
+    \right)
+    \\
+    &=
+    \arg\min_\beta
+    \,
+    \left(
+        \frac{
+            1
+        }{
+            2\sigma^2
+        }
+    \right)
+    \left(
+        \sum_{i = 1}^{n}
+        \left[
+            Y_i - (\beta_0 + \sum_{j = 1}^{p} \beta_j X_{ij})
+        \right]^2
+        +
+        \frac{
+            \sigma^2
+        }{
+            c
+        }
+        \sum_{i = 1}^{p} \beta_i^2
+    \right)
+\end{aligned}
+$$
+
+By letting $\lambda = \sigma^2/ c$, we end up with:
+
+$$
+\begin{aligned}
+    &=
+    \arg\min_\beta
+    \,
+    \left(
+        \frac{
+            1
+        }{
+            2\sigma^2
+        }
+    \right)
+    \left(
+        \sum_{i = 1}^{n}
+        \left[
+            Y_i - (\beta_0 + \sum_{j = 1}^{p} \beta_j X_{ij})
+        \right]^2
+        +
+        \lambda
+        \sum_{i = 1}^{p} \beta_i^2
+    \right)
+    \\
+    &=
+    \arg\min_\beta
+    \,
+    \text{RSS}
+    +
+    \lambda
+    \sum_{i = 1}^{p} \beta_i^2
+\end{aligned}
+$$
+
+which we know is the Ridge Regression from Equation 6.5 in the book. Thus we
+know that when the posterior comes from a normal distribution with mean zero
+and variance $c$, the mode for $\beta$ is given by the Ridge Regression
+solution when $\lambda = \sigma^2 / c$. Since the posterior is Gaussian, we
+also know that it is the posterior mean.
+
+---------------------------------------
+
+##Applied
+###Excercise 8a
+```{r}
+x = rnorm(100)
+sigma = rnorm(100)
+```
+
+###Excercise 8b
+```{r}
+beta_0 = 1; beta_1 = 0.5; beta_2 = 4.3; beta_3 = 1.8; 
+y = beta_0 +  beta_1 * x + beta_2 * x^2 + beta_3 * x^3 + 3*sigma
+plot(x, y)
+```
+
+###Excercise 8c
+```{r}
+library(leaps)
+regfit.full = regsubsets(y~., data = data.frame(poly(x, 10), y), nvmax = 10)
+reg.summary = summary(regfit.full)
+par(mfrow = c(2,2))
+plot(reg.summary$rss, xlab = "Number of Variables", ylab = "RSS", type = "l")
+points(which.min(reg.summary$rss), min(reg.summary$rss), col = "red", cex = 2, pch = 20)
+plot(reg.summary$adjr2, xlab = "Number of variables", ylab = "Adjusted RSq", type = "l")
+points(which.max(reg.summary$adjr2), max(reg.summary$adjr2), col = "red", cex = 2, pch = 20)
+plot(reg.summary$cp, xlab = "Number of variables", ylab = "Mallows' Cp", type = "l")
+points(which.min(reg.summary$cp), min(reg.summary$cp), col = "red", cex = 2, pch = 20)
+plot(reg.summary$bic, xlab = "Number of variables", ylab = "BIC", type = "l")
+points(which.min(reg.summary$bic), min(reg.summary$bic), col = "red", cex = 2, pch = 20)
+# use built-in plot function
+par(mfrow = c(1,1))
+plot(regfit.full, scale = "adjr2")
+plot(regfit.full, scale = "Cp")
+plot(regfit.full, scale = "bic")
+coef(regfit.full, 3)
+```
+
+###Excercise 8d
+```{r}
+library(leaps)
+regfit.fwd = regsubsets(y~., data = data.frame(poly(x, 10), y), nvmax = 10, method = "forward")
+regfit.fwd_summary = summary(regfit.fwd)
+
+regfit.bwd = regsubsets(y~., data = data.frame(poly(x, 10), y), nvmax = 10, method = "backward")
+regfit.bwd_summary = summary(regfit.bwd)
+
+par(mfrow = c(2,2))
+plot(regfit.fwd_summary$rss, xlab = "Number of Variables", ylab = "RSS", type = "l")
+points(which.min(regfit.fwd_summary$rss), min(regfit.fwd_summary$rss), col = "red", cex = 2, pch = 20)
+plot(regfit.fwd_summary$adjr2, xlab = "Number of variables", ylab = "Adjusted RSq", type = "l")
+points(which.max(regfit.fwd_summary$adjr2), max(regfit.fwd_summary$adjr2), col = "red", cex = 2, pch = 20)
+plot(regfit.fwd_summary$cp, xlab = "Number of variables", ylab = "Mallows' Cp", type = "l")
+points(which.min(regfit.fwd_summary$cp), min(regfit.fwd_summary$cp), col = "red", cex = 2, pch = 20)
+plot(regfit.fwd_summary$bic, xlab = "Number of variables", ylab = "BIC", type = "l")
+points(which.min(regfit.fwd_summary$bic), min(regfit.fwd_summary$bic), col = "red", cex = 2, pch = 20)
+
+par(mfrow = c(2,2))
+plot(regfit.bwd_summary$rss, xlab = "Number of Variables", ylab = "RSS", type = "l")
+points(which.min(regfit.bwd_summary$rss), min(regfit.bwd_summary$rss), col = "red", cex = 2, pch = 20)
+plot(regfit.bwd_summary$adjr2, xlab = "Number of variables", ylab = "Adjusted RSq", type = "l")
+points(which.max(regfit.bwd_summary$adjr2), max(regfit.bwd_summary$adjr2), col = "red", cex = 2, pch = 20)
+plot(regfit.bwd_summary$cp, xlab = "Number of variables", ylab = "Mallows' Cp", type = "l")
+points(which.min(regfit.bwd_summary$cp), min(regfit.bwd_summary$cp), col = "red", cex = 2, pch = 20)
+plot(regfit.bwd_summary$bic, xlab = "Number of variables", ylab = "BIC", type = "l")
+points(which.min(regfit.bwd_summary$bic), min(regfit.bwd_summary$bic), col = "red", cex = 2, pch = 20)
+
+#use built-in plot function
+par(mfrow = c(1,1))
+plot(regfit.fwd, scale = "adjr2")
+plot(regfit.fwd, scale = "Cp")
+plot(regfit.fwd, scale = "bic")
+plot(regfit.bwd, scale = "adjr2")
+plot(regfit.bwd, scale = "Cp")
+plot(regfit.bwd, scale = "bic")
+coef(regfit.fwd, 3)
+coef(regfit.bwd, 3)
+coef(regfit.full, 3)
+```
+
+As shown above, best subset selection, forward/backward selection methods return the same result for our simulated data. When measured in bic, all of them treat 3 predictors $x$, $x^2$ and $x^3$ as the best combination in predicting the test set. Besides, the coefficients obtained for those 3 predictors in three model selection methods are the same.
+
+###Excercise 8e
+```{r}
+library(glmnet)
+set.seed(1)
+grid = 10^seq(10, -2, length = 100)
+train = sample(1:length(x), length(x) / 2)
+test = -train
+x = model.matrix(y~., data.frame(poly(x, 10)), y = y)[, -1]
+y.test = y[test]
+lasso.mod = glmnet(x[train, ], y[train], alpha = 1, lambda = grid)
+plot(lasso.mod)
+cv.out = cv.glmnet(x[train, ], y[train], alpha = 1)
+plot(cv.out)
+bestlam = cv.out$lambda.min
+lasso.pred = predict(lasso.mod, s = bestlam, newx = x[test, ])
+bestlam
+mean((lasso.pred - y.test)^2)
+out = glmnet(x, y, alpha = 1, lambda = grid)
+lasso.coef = predict(out, type = "coefficients", s = bestlam)[1:11, ]
+lasso.coef
+# clean up
+rm(list=setdiff(ls(), "bib"))
+```
+
+The lasso regularization method has supressed coeffcient estimates of $x^4$ and $x^9$ into zeros. Besides, the first three coefficient estimates are obvisouly larger the other coefficient estimates therefore are in accord with the true relationship between $X$ and $Y$.
+
+###Excercise 8f
+```{r}
+x = rnorm(100)
+y = 0.7 + 3.2 + x^7 + 3 * rnorm(100)
+plot(x, y)
+```
+
+```{r}
+regfit.full = regsubsets(y~., data = data.frame(poly(x, 10), y), nvmax = 10)
+reg.summary = summary(regfit.full)
+par(mfrow = c(2,2))
+plot(reg.summary$rss, xlab = "Number of Variables", ylab = "RSS", type = "l")
+points(which.min(reg.summary$rss), min(reg.summary$rss), col = "red", cex = 2, pch = 20)
+plot(reg.summary$adjr2, xlab = "Number of variables", ylab = "Adjusted RSq", type = "l")
+points(which.max(reg.summary$adjr2), max(reg.summary$adjr2), col = "red", cex = 2, pch = 20)
+plot(reg.summary$cp, xlab = "Number of variables", ylab = "Mallows' Cp", type = "l")
+points(which.min(reg.summary$cp), min(reg.summary$cp), col = "red", cex = 2, pch = 20)
+plot(reg.summary$bic, xlab = "Number of variables", ylab = "BIC", type = "l")
+points(which.min(reg.summary$bic), min(reg.summary$bic), col = "red", cex = 2, pch = 20)
+# use built-in plot function
+par(mfrow = c(1,1))
+plot(regfit.full, scale = "adjr2")
+plot(regfit.full, scale = "Cp")
+plot(regfit.full, scale = "bic")
+```
+
+```{r}
+library(glmnet)
+set.seed(1)
+grid = 10^seq(10, -2, length = 100)
+train = sample(1:length(x), length(x) / 2)
+test = -train
+x = model.matrix(y~., data.frame(poly(x, 10)), y = y)[, -1]
+y.test = y[test]
+lasso.mod = glmnet(x[train, ], y[train], alpha = 1, lambda = grid)
+plot(lasso.mod)
+cv.out = cv.glmnet(x[train, ], y[train], alpha = 1)
+plot(cv.out)
+bestlam = cv.out$lambda.min
+bestlam
+out = glmnet(x, y, alpha = 1, lambda = grid)
+lasso.coef = predict(out, type = "coefficients", s = bestlam)[1:8, ]
+lasso.coef
+coef(regfit.full, 7)
+# clean up
+rm(list=setdiff(ls(), "bib"))
+```
+
+Note that the results obtained from best subset selection method are similar to the ones obtained from lasso, both of which report that seven variables ($x$, $x^2$, ..., $x^7$) should be chosen in order to ahieve the lowest test error.
+
+###Excercise 9a
+```{r}
+library(ISLR)
+attach(College)
+set.seed(1)
+train = sample(nrow(College), nrow(College) / 2)
+test = -train
+```
+
+###Excercise 9b
+```{r}
+lm.fit = lm(Apps~., data = College, subset = train)
+summary(lm.fit)
+lm.pred = predict(lm.fit, College[test, ])
+mean((lm.pred - Apps[test])^2)
+```
+
+###Excercise 9c
+```{r}
+grid = 10^seq(10, -2, length = 100)
+x = model.matrix(Apps~., College)[, -1]
+y = Apps
+```
+
+```{r}
+ridge.mod = glmnet(x[train, ], y[train], alpha = 0, lambda = grid)
+plot(ridge.mod)
+cv.out = cv.glmnet(x[train, ], y[train], alpha = 0)
+plot(cv.out)
+bestlam = cv.out$lambda.min
+bestlam
+ridge.out = glmnet(x, y, alpha = 0)
+ridge.pred = predict(ridge.mod, s = bestlam, newx = x[test, ])
+mean((ridge.pred - y[test])^2)
+ridge.coef = predict(ridge.out, type = "coefficients", s = bestlam)[1:(ncol(x)+1), ]
+ridge.coef
+```
+
+###Excercise 9d
+```{r}
+lasso.mod = glmnet(x[train, ], y[train], alpha = 1, lambda = grid)
+plot(lasso.mod)
+cv.out = cv.glmnet(x[train, ], y[train], alpha = 1)
+plot(cv.out)
+bestlam = cv.out$lambda.min
+bestlam
+lasso.pred = predict(lasso.mod, s = bestlam, newx = x[test, ])
+mean((lasso.pred - y[test])^2)
+lasso.out = glmnet(x, y, alpha = 1)
+lasso.coef = predict(lasso.out, type = "coefficients", s = bestlam)[1:(ncol(x)+1), ]
+lasso.coef
+nnzero(lasso.coef) - 1
+```
+
+###Excercise 9e
+```{r}
+library(pls)
+set.seed(1)
+pcr.fit = pcr(Apps~., data = College, subset = train, scale = T, validation = "CV")
+summary(pcr.fit)
+validationplot(pcr.fit, val.type = "MSEP")
+```
+
+As we can see from above figure, the lowest cross-validation error occurs when $M = 16$ components are used. This is barely fewer than $M = 17$, which amounts to simply performing least squares.
+
+```{r}
+pcr.pred = predict(pcr.fit, x[test, ], ncomp = 16)
+mean((pcr.pred - y[test])^2)
+```
+
+###Excercise 9f
+```{r}
+pls.fit = plsr(Apps~., data = College, subset = train, scale = T, validation = "CV")
+summary(pls.fit)
+validationplot(pls.fit, val.type = "MSEP")
+```
+
+As we can see from above figure, the lowest cross-validation error occurs when $M = 11$ components are used.
+
+```{r}
+pls.pred = predict(pls.fit, x[test, ], ncomp = 11)
+mean((pls.pred - y[test])^2)
+```
+
+###Excercise 9g
+Now we need to compare all the test errors obtained from the above five models, they are:
+
+Least sqaures: `r mean((lm.pred - Apps[test])^2)`  
+Ridge regression: `r mean((ridge.pred - Apps[test])^2)`  
+Lasso regression: `r mean((lasso.pred - y[test])^2)` with the number of non-zero coefficient estimates `r nnzero(lasso.coef) - 1`  
+Principle components regression: `r mean((pcr.pred - y[test])^2)`  
+Partial least squares: `r mean((pls.pred - y[test])^2)`
+
+(Lasso regression has the lowest test error whereas the PCA has the highest)
+
+, with barplot of the test R-Squared:
+
+```{r}
+test.avg = mean(Apps[test])
+lm.test.r2 = 1 - mean((lm.pred - Apps[test])^2) / mean((Apps[test] - test.avg)^2)
+ridge.test.r2 = 1 - mean((ridge.pred - Apps[test])^2) / mean((Apps[test] - test.avg)^2)
+lasso.test.r2 = 1 - mean((lasso.pred - Apps[test])^2) / mean((Apps[test] - test.avg)^2)
+pcr.test.r2 = 1 - mean((pcr.pred - Apps[test])^2) / mean((Apps[test] - test.avg)^2)
+pls.test.r2 = 1 - mean((pls.pred - Apps[test])^2) / mean((Apps[test] - test.avg)^2)
+c(lm.test.r2, ridge.test.r2, lasso.test.r2, pcr.test.r2, pls.test.r2)
+barplot(c(lm.test.r2, ridge.test.r2, lasso.test.r2, pcr.test.r2, pls.test.r2), col = "red", names.arg = c("LS", "Ridge", "Lasso", "PCR", "PLS"), main = "Test R-Squared")
+#clean up
+rm(list=setdiff(ls(), "bib"))
+```
+
+All five models have a R-squared value around 0.9, among which PCR's and PLS's values are slightly lower.
+
+###Excercise 10a
+```{r}
+set.seed(1)
+n = 1000
+p = 20
+colnames = c(); rownames = c()
+for ( i in 1:p ) {
+  colnames[i] = sprintf('X%d', i)
+}
+for ( i in 1:n ) {
+  rownames[i] = sprintf('Observation_%d', i)
+}
+x = matrix(nrow = n, ncol = p, dimnames = list(rownames, colnames))
+means = runif(p, -10, 10)
+sds = runif(p, 0, 3)
+for ( i in 1:p ) {
+  x[, i] = rnorm(n, mean = means[i], sd = sds[i])
+}
+error = 3 * rnorm(n)
+betas = runif(p, -5, 5)
+betas[5:7] = 0; betas[11] = 0; betas[15:17] = 0 # number of non-zero coefficients = 13
+betas
+```
+
+```{r}
+y = x%*%betas + error
+plot(x[,1], y)
+plot(x[,5], y)
+```
+
+###Excercise 10b
+```{r}
+train = sample(n, n * 9 / 10)
+test = -train
+train.x = x[train, ]
+test.x = x[test, ]
+test.y = y[test]
+```
+
+###Excercise 10c
+```{r}
+library(leaps)
+regfit.full = regsubsets(y~., data = data.frame(x, y), nvmax = p)
+reg.summary = summary(regfit.full)
+plot(reg.summary$rss, xlab = "Number of Variables", ylab = "Train RSS", type = "l")
+```
+
+###Excercise 10d
+```{r}
+test.rss = c()
+for ( i in 1 : p ) {
+  pred = as.matrix(test.x[, names(coef(regfit.full, i)[-1])]) %*% coef(regfit.full, i)[-1]
+  test.rss[i] = mean((pred - test.y)^2)
+}
+plot(test.rss, type = "l", xlab = "Number of variables", ylab = "Test MSE")
+points(which.min(test.rss), min(test.rss), col = "red", cex = 2, pch = 20)
+```
+
+###Excercise 10e
+```{r}
+which.min(test.rss)
+```
+
+###Excercise 10f
+```{r}
+coef(regfit.full, which.min(test.rss))[-1]
+names(betas) = colnames
+betas
+```
+
+In the true model, the number of non-zero coefficients is 13, which is the same with result obtained in _10(e)_. However, the true model has __5, 6, 7, 11, 15, 16, 17__ -th coeffcients set to zero while in the model at which the test set MSE is minimized, __6, 7, 11, 15, 16, 17, 18__ -th coefficient estiamtes are found to be zeros.
+
+###Excercise 10g
+```{r}
+sd_sum_error = c()
+for ( i in 1 : p ) {
+  sd_sum_error[i] = sqrt(sum((betas[names(coef(regfit.full, i)[-1])] - coef(regfit.full, i)[-1])^2))
+}
+plot(sd_sum_error, type = "l", xlab = "Number of variables", ylab = "Std. of Sum of Coefficient Estimation Error")
+points(which.min(sd_sum_error), min(sd_sum_error), col = "red", cex = 2, pch = 20)
+which.min(sd_sum_error)
+# clean up
+rm(list=setdiff(ls(), "bib"))
+```
+
+When $p = 2$, the std. of sum of coefficient estimation error is lowest. The result is quite different from _10(d)_ where 13 predictors were treated as the best selection.
+
+Conclusively, a model with better fit of true coefficients doesn't necessarily provide a lower test set error.
+
+###Excercise 11a
+Pre-processing steps:
+
+```{r}
+library(MASS)
+library(leaps)
+library(pls)
+attach(Boston)
+set.seed(1)
+Boston = na.omit(Boston)
+train = sample(nrow(Boston), nrow(Boston) / 2)
+test = -train
+```
+
+----------------------------------------------
+
+Try best selection method with cross validation:
+
+```{r}
+predict.regsubsets = function(object, newdata, id, ...) {
+  form = as.formula(object$call[[2]])
+  mat = model.matrix(form, newdata)
+  coefi = coef(object, id = id)
+  xvars = names(coefi)
+  return(mat[, xvars] %*% coefi)
+}
+
+k = 10; p = ncol(Boston) - 1
+folds = sample(1:k, nrow(Boston), replace = T)
+cv.errors = matrix(NA, k, p, dimnames = list(NULL, paste(1:p)))
+
+for (j in 1:k) {
+  best.fit = regsubsets(crim~., data = Boston[folds != j, ], nvmax = p)
+  for (i in 1:p) {
+    pred = predict(best.fit, Boston[folds==j, ], id = i)
+    cv.errors[j, i] = mean((crim[folds==j] - pred)^2)
+  }
+}
+mean.cv.errors = apply(cv.errors, 2, mean)
+plot(mean.cv.errors, type = 'b')
+which.min(mean.cv.errors)
+```
+
+```{r}
+# refit to calculate mean squared error
+regfit.full = regsubsets(crim~., data = Boston[train, ], nvmax = p)
+bestsubset.pred = predict(regfit.full, Boston[test, ], id = which.min(mean.cv.errors))
+mean((bestsubset.pred - crim[test])^2)
+reg.best = regsubsets(crim~., data = Boston, nvmax = p)
+bestsubset.coef = coef(reg.best, which.min(mean.cv.errors)) # according to result obtained in cross validation
+bestsubset.coef
+```
+
+----------------------------------------------
+
+Some pre-processing steps for fitting other methods later:
+
+```{r}
+grid = 10^seq(10, -2, length = 100)
+x = model.matrix(crim~., Boston)[, -1]
+y = crim
+```
+
+----------------------------------------------
+
+Try ridge regression method:
+
+```{r}
+ridge.mod = glmnet(x[train, ], y[train], alpha = 0, lambda = grid)
+plot(ridge.mod)
+cv.out = cv.glmnet(x[train, ], y[train], alpha = 0)
+plot(cv.out)
+bestlam = cv.out$lambda.min
+bestlam
+ridge.out = glmnet(x, y, alpha = 0)
+ridge.pred = predict(ridge.mod, s = bestlam, newx = x[test, ])
+mean((ridge.pred - y[test])^2)
+ridge.coef = predict(ridge.out, type = "coefficients", s = bestlam)[1:(ncol(x)+1), ]
+ridge.coef
+```
+
+----------------------------------------------
+
+Try lasso regression method:
+
+```{r}
+lasso.mod = glmnet(x[train, ], y[train], alpha = 1, lambda = grid)
+plot(lasso.mod)
+cv.out = cv.glmnet(x[train, ], y[train], alpha = 1)
+plot(cv.out)
+bestlam = cv.out$lambda.min
+bestlam
+lasso.pred = predict(lasso.mod, s = bestlam, newx = x[test, ])
+mean((lasso.pred - y[test])^2)
+lasso.out = glmnet(x, y, alpha = 1)
+lasso.coef = predict(lasso.out, type = "coefficients", s = bestlam)[1:(ncol(x)+1), ]
+lasso.coef
+nnzero(lasso.coef) - 1
+```
+
+----------------------------------------------
+
+Try pcr method:
+
+```{r}
+pcr.fit = pcr(crim~., data = Boston, subset = train, scale = T, validation = "CV")
+summary(pcr.fit)
+validationplot(pcr.fit, val.type = "MSEP")
+```
+
+As we can see from above figure, the lowest cross-validation error occurs when $M = 13$ components are used, which amounts to simply performing the linear squares method.
+
+```{r}
+pcr.pred = predict(pcr.fit, x[test, ], ncomp = 13)
+mean((pcr.pred - y[test])^2)
+```
+
+----------------------------------------------
+
+Now we need to compare all the test errors obtained from the above four models, they are:
+
+Best subset selection: `r mean((bestsubset.pred - crim[test])^2)`   
+Ridge regression: `r mean((ridge.pred - crim[test])^2)`   
+Lasso regression: `r mean((lasso.pred - crim[test])^2)` with the number of non-zero coefficient estimates `r nnzero(lasso.coef) - 1`   
+Principle components regression: `r mean((pcr.pred - crim[test])^2)` 
+
+__(Ridge regression has the lowest test error whereas the best selection method has the highest)__
+
+, with barplot of the test R-Squared:
+
+```{r}
+test.avg = mean(crim[test])
+TSS = mean((crim[test] - test.avg)^2)
+bestsubset.test.r2 = 1 - mean((bestsubset.pred - crim[test])^2) / TSS
+ridge.test.r2 = 1 - mean((ridge.pred - crim[test])^2) / TSS
+lasso.test.r2 = 1 - mean((lasso.pred - crim[test])^2) / TSS
+pcr.test.r2 = 1 - mean((pcr.pred - crim[test])^2) / TSS
+c(bestsubset.test.r2, ridge.test.r2, lasso.test.r2, pcr.test.r2)
+
+barplot(c(bestsubset.test.r2, ridge.test.r2, lasso.test.r2, pcr.test.r2), col = "red", names.arg = c("Best subset", "Ridge", "Lasso", "PCR"), main = "Test R-Squared")
+```
+
+__All four models have similar R-squared values around 0.43, among which best selection's and PCR's R-squared values are slightly lower.__
+
+###Excercise 11b
+See 11(a) for all the analysis process.
+
+###Excercise 11c
+Since there is not much difference w.r.t. test error and test R-squared values in using the four models, I would prefer best selection method over lasso regression method, because it is easier to explain the data using best selection method which contains the fewest variables (`r nnzero(bestsubset.coef[-1])` vs. `r nnzero(lasso.coef[-1])` non-zero variables in lasso regression), as summarized below:
+
+```{r}
+bestsubset.coef[-1]
+nnzero(bestsubset.coef[-1])
+ridge.coef[-1]
+nnzero(ridge.coef[-1])
+lasso.coef[-1]
+nnzero(lasso.coef[-1])
+ncomp = 13 # number of principle components used: best selected in pcr
+ncomp
+```
+
+# References
+```{r results = "asis", echo = FALSE}
+PrintBibliography(bib, .opts = list(bib.style = "alphabetic"))
+```
